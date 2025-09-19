@@ -1,10 +1,23 @@
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class Game {
+    JFrame mainMenu;
+    JFrame settingsMenu;
+    JFrame gameMenu;
+    JFrame saveMenu;
+    ArrayList<JFrame> frames=new ArrayList<>();
     public Game(){
+        mainMenu=new MainMenu();
+        frames.add(mainMenu);
+        settingsMenu= new SettingsMenu();
+        frames.add(settingsMenu);
+        gameMenu= new GameMenu();
+        frames.add(gameMenu);
+        saveMenu= new SaveMenu();
+        frames.add(saveMenu);
     }
 
-    JFrame mainMenu=new MainMenu();
     //screen that user is currently on: Menu (0), Settings (1), Game (2) or Save menu (3)
     int screen=0;
 
@@ -21,11 +34,14 @@ public class Game {
         }
         displayScreen();
     }
+
+
     public void displayScreen(){
-        switch(screen){
-            case 0: mainMenu.setVisible(true);
-            break;
-            //Add cases for each screen
+        //Makes all screens invisible
+        for(JFrame frame:frames){
+            frame.setVisible(false);
         }
+        //Finds the selected screen in the arraylist and sets it to visible
+        frames.get(screen).setVisible(true);
     }
 }
