@@ -15,14 +15,16 @@ public class MainMenu extends JFrame {
     private JButton saveMenuButton;
     private JPanel imagePanel;
     private BufferedImage image;
+    private Game game;
 
-    public MainMenu(){
+    public MainMenu(Game input){
         super();
+        game=input;
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(mainPanel);
         this.pack();
         try {
-            image = ImageIO.read(new File("./Coursework/Image.jpg"));
+            image = ImageIO.read(new File("./Image.jpg"));
         }
         catch (IOException ignored) {
         }
@@ -32,7 +34,7 @@ public class MainMenu extends JFrame {
 
         settingsButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                Main.game.setScreen(1);
+                game.setScreen(1);
 
             }
         }
@@ -40,7 +42,7 @@ public class MainMenu extends JFrame {
 
         startGameButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                Main.game.setScreen(2);
+                game.setScreen(2);
 
             }
         }
@@ -48,7 +50,7 @@ public class MainMenu extends JFrame {
 
         saveMenuButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                Main.game.setScreen(3);
+                game.setScreen(3);
             }
         }
         );
