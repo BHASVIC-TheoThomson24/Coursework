@@ -23,12 +23,14 @@ public class MainMenu extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(mainPanel);
         this.pack();
+        mainPanel.setBackground(Color.lightGray);
         try {
             image = ImageIO.read(new File("./Image.jpg"));
         }
         catch (IOException ignored) {
         }
         imagePanel.setLayout(new FlowLayout());
+        imagePanel.setBackground(Color.lightGray);
         JLabel imageLabel = new JLabel(new ImageIcon(image));
         imagePanel.add(imageLabel);
 

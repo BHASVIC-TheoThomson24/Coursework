@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -26,6 +27,7 @@ public class SettingsMenu extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setContentPane(Settings);
         this.pack();
+        Settings.setBackground(Color.BLUE);
         arrowUp = new ImageIcon("./ArrowUp.png");
         arrowDown = new ImageIcon("./ArrowDown.png");
         arrowUpGray = new ImageIcon("./ArrowUpGray.png");
@@ -96,8 +98,8 @@ public class SettingsMenu extends JFrame {
         difficultyDown.setIcon(arrowDown);
         mapUp.setIcon(arrowUp);
         mapDown.setIcon(arrowDown);
-        gameModeUp.setIcon(arrowUpGray);
-        gameModeDown.setIcon(arrowDownGray);
+        gameModeUp.setIcon(arrowUp);
+        gameModeDown.setIcon(arrowDown);
         if(game.getDifficulty()==9){
             difficultyUp.setIcon(arrowUpGray);
         }
