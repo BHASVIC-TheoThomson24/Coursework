@@ -41,8 +41,9 @@ public class Game {
         for(JFrame frame:frames){
             frame.setVisible(false);
         }
-        //Finds the selected screen in the arraylist and sets it to visible
+        //Finds the selected screen in the arraylist and sets it to visible and gives it keyboard/input focus
         frames.get(screen).setVisible(true);
+        frames.get(screen).transferFocus();
     }
 
     //difficulty from 0-9
