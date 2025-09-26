@@ -91,4 +91,7 @@ public class Game {
     public int getMode(){
         return gameMode;
     }
+    public ArrayList<JFrame> getFrames(){
+        return frames;
+    }
 }

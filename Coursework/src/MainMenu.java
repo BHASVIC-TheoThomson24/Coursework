@@ -25,7 +25,7 @@ public class MainMenu extends JFrame {
         this.pack();
         mainPanel.setBackground(Color.lightGray);
         try {
-            image = ImageIO.read(new File("./Image.jpg"));
+            image = ImageIO.read(new File("./Image.png"));
         }
         catch (IOException ignored) {
         }
