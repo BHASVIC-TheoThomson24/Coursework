@@ -12,9 +12,9 @@ public class GameMenu extends JFrame {
     private Game game;
     private JPanel pauseMenu;
     private JTextArea pauseText;
-    private ArrayList<JPanel> tiles = new ArrayList<JPanel>();
+    private ArrayList<Ant> ants = new ArrayList<Ant>();
     private JPanel gamePlay;
-
+    private GameplayGrid grid= new GameplayGrid(this);
     public GameMenu(Game input) {
         super();
         game = input;
@@ -22,6 +22,8 @@ public class GameMenu extends JFrame {
         this.setContentPane(gamePanel);
         this.pack();
 
+        gamePlay.setLayout(new GridLayout(1,1));
+        gamePlay.add(grid);
         setAlwaysOnTop(true);
         pauseText.setEditable(false);
         pauseText.setFocusable(false);
@@ -48,38 +50,48 @@ public class GameMenu extends JFrame {
                        c.setVisible(!flag);
                    }
                 }
+                else{
+                    int direction=0;
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_W: direction=0;
+                        break;
+                        case KeyEvent.VK_D: direction=1;
+                        break;
+                        case KeyEvent.VK_S: direction=2;
+                        break;
+                        case KeyEvent.VK_A: direction=3;
+                        break;
+                        default:
+                    }
+                    for (Ant ant: ants){
+                        if(ant.getPlaying()) {
+                            ant.move(direction);
+                        }
+                    }
+                }
             }
         });
-        //Make 10x10 grid of tiles
-        gamePlay.setLayout(new GridLayout(10,10));
-        for(int i=0;i<100;i++){
-            tiles.add(new JPanel());
-        }
-        for(JPanel p : tiles){
-            p.setLayout(new BorderLayout());
-            p.setSize(50,50);
-            gamePlay.add(p);
-        }
-        for(int i=0;i<100;i++){
-            setTile(i/10,i%10, new JLabel(new ImageIcon("./EmptyTile.png")));
-        }
 
-        for (Component c : gamePanel.getComponents()) {
-            c.setBackground(new Color(150,75,0));
-        }
-        setTile(0,5,new Ant());
-        setTile(1,5,new Ant());
+        Ant ant1=new Ant();
+        Ant ant2=new Ant();
+        ants.add(ant1);
+        ants.add(ant2);
+        setTile(0,5,ant1);
+        setTile(1,5,ant2);
         setTile(2,2,new Food());
         setTile(1,4,new Pheromone(0,2));
         setTile(1,3,new Pheromone(0,2));
         setTile(1,2,new Pheromone(2,1));
 
-
-
     }
-    public void setTile(int x,int y, JComponent tile){
-        //x and y begin at 0 in the top left corner
-        tiles.get(10*y+x).add(tile,BorderLayout.CENTER);
+    public void setTile(int x, int y, JComponent tile){
+        grid.setTile(x,y,tile);
     }
+    public void changeAnt(){
+        for(Ant ant: ants){
+            ant.setPlaying(false);
+        }
+    }
+
 
 }
