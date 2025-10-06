@@ -2,10 +2,10 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class Game {
-    private JFrame mainMenu;
-    private JFrame settingsMenu;
-    private JFrame gameMenu;
-    private JFrame saveMenu;
+    private MainMenu mainMenu;
+    private SettingsMenu settingsMenu;
+    private GameMenu gameMenu;
+    private SaveMenu saveMenu;
     ArrayList<JFrame> frames=new ArrayList<>();
     public Game(){
         mainMenu=new MainMenu(this);

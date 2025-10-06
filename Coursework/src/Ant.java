@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -42,15 +43,19 @@ public class Ant extends JButton {
         }
         getMenu();
 
+        Component tile = menu.getTile(x+dx,y+dy);
+        //Cannot move to a space occupied by another ant
+        if(tile instanceof Ant){
+            return;
+        }
+        if(tile instanceof Food){
+            menu.addFood();
+        }
         if(x+dx>=0 && x+dx<=9 && y+dy>=0 && y+dy<=9){
             menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
             menu.setTile(x+dx,y+dy,this);
             menu.repaint();
         }
-        else{
-            System.out.println("Invalid movement");
-        }
-
     }
     public void setCoordinates(int x, int y){
         this.x=x;

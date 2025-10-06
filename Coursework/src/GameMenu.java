@@ -5,7 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameMenu extends JFrame {
     private JPanel gamePanel;
@@ -15,6 +17,8 @@ public class GameMenu extends JFrame {
     private ArrayList<Ant> ants = new ArrayList<Ant>();
     private JPanel gamePlay;
     private GameplayGrid grid= new GameplayGrid(this);
+    private int food = 0;
+    private Boolean controlDown = false;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -27,7 +31,6 @@ public class GameMenu extends JFrame {
         setAlwaysOnTop(true);
         pauseText.setEditable(false);
         pauseText.setFocusable(false);
-
         JButton back = new JButton("Back");
         back.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -36,6 +39,7 @@ public class GameMenu extends JFrame {
         });
         pauseMenu.setLayout(new FlowLayout());
         pauseMenu.add(back);
+        pauseMenu.setBackground(new Color(150,75,0));
         gamePanel.setBackground(new Color(150,75,0));
         gamePanel.setFocusable(true);
         gamePanel.setLayout(new FlowLayout());
@@ -51,8 +55,10 @@ public class GameMenu extends JFrame {
                    }
                 }
                 else{
-                    int direction=0;
+                    int direction=-1;
                     switch (e.getKeyCode()) {
+                        case KeyEvent.VK_CONTROL: controlDown=!controlDown;
+                        break;
                         case KeyEvent.VK_W: direction=0;
                         break;
                         case KeyEvent.VK_D: direction=1;
@@ -61,11 +67,15 @@ public class GameMenu extends JFrame {
                         break;
                         case KeyEvent.VK_A: direction=3;
                         break;
+
+
                         default:
                     }
-                    for (Ant ant: ants){
-                        if(ant.getPlaying()) {
-                            ant.move(direction);
+                    if(direction!=-1) {
+                        for (Ant ant : ants) {
+                            if (ant.getPlaying()) {
+                                ant.move(direction);
+                            }
                         }
                     }
                 }
@@ -82,16 +92,35 @@ public class GameMenu extends JFrame {
         setTile(1,4,new Pheromone(0,2));
         setTile(1,3,new Pheromone(0,2));
         setTile(1,2,new Pheromone(2,1));
-
     }
     public void setTile(int x, int y, JComponent tile){
         grid.setTile(x,y,tile);
     }
     public void changeAnt(){
-        for(Ant ant: ants){
-            ant.setPlaying(false);
+        if(!controlDown) {
+            for (Ant ant : ants) {
+                ant.setPlaying(false);
+            }
         }
     }
+    public Component getTile(int x, int y){
+        try {
+            return grid.getComponent(10 * y + x).getComponentAt(0, 0);
+        }catch(ArrayIndexOutOfBoundsException e){
+            return null;
+        }
+    }
+    public void addFood(){
+        food++;
+    }
+    public void addRandomFood(){
+        Random rand = new Random();
+        int x= rand.nextInt(10);
+        int y= rand.nextInt(10);
+        if(! (getTile(x,y) instanceof Ant  || getTile(x,y) instanceof Pheromone || getTile(x,y) instanceof Food)){
+            setTile(x,y,new Food());
+        }
 
+    }
 
 }
