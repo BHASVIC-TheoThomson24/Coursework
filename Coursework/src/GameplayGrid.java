@@ -29,11 +29,42 @@ public class GameplayGrid extends JPanel{
     }
     public void setTile(int x,int y, JComponent tile){
         //x and y begin at 0 in the top left corner
-        if (x < 0 || y < 0 || x > 9 || y > 9) {
+        GridLayout layout = (GridLayout) getLayout();
+        int columns= layout.getColumns();
+        int rows= layout.getRows();
+        if (x < 0 || y < 0) {
             System.out.println("Invalid movement");
-            }
+        }
         else{
-            int index = 10 * y + x;
+            //If they move past right edge of grid, add a new column
+            if(x >columns-1){
+                layout.setColumns(++columns);
+                //Fill column with empty tiles
+                for(int i=1;i<=rows;i++){
+                    JPanel p = new JPanel();
+                    p.setLayout(new BorderLayout());
+                    p.setSize(50,50);
+                    p.add(new JLabel(new ImageIcon("./EmptyTile.png")));
+                    add(p,columns*i-1);
+                    tiles.add(columns*i-1,p);
+                }
+            }
+            if(y >rows-1){
+                //Add a row
+                layout.setRows(++rows);
+                //Fill row
+                for(int i=1;i<=columns;i++){
+                    JPanel p = new JPanel();
+                    p.setLayout(new BorderLayout());
+                    p.setSize(50,50);
+                    p.add(new JLabel(new ImageIcon("./EmptyTile.png")));
+                    add(p);
+                    tiles.add(p);
+
+                }
+            }
+
+            int index = columns * y + x;
             //Clear tile to create space
             tiles.get(index).removeAll();
             //Add new tile
@@ -41,9 +72,10 @@ public class GameplayGrid extends JPanel{
             if(tile instanceof Ant){
                 ((Ant) tile).setCoordinates(x,y);
             }
+
         }
-
-
+        revalidate();
+        repaint();
     }
 
 }

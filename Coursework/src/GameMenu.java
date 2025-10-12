@@ -105,7 +105,9 @@ public class GameMenu extends JFrame {
     }
     public Component getTile(int x, int y){
         try {
-            return grid.getComponent(10 * y + x).getComponentAt(0, 0);
+            GridLayout layout = (GridLayout) grid.getLayout();
+            int columns = layout.getColumns();
+            return grid.getComponent(columns * y + x).getComponentAt(0, 0);
         }catch(ArrayIndexOutOfBoundsException e){
             return null;
         }
@@ -122,5 +124,6 @@ public class GameMenu extends JFrame {
         }
 
     }
+    
 
 }

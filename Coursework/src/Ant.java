@@ -51,10 +51,9 @@ public class Ant extends JButton {
         if(tile instanceof Food){
             menu.addFood();
         }
-        if(x+dx>=0 && x+dx<=9 && y+dy>=0 && y+dy<=9){
+        if(x+dx>=0 && y+dy>=0){
             menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
             menu.setTile(x+dx,y+dy,this);
-            menu.repaint();
         }
     }
     public void setCoordinates(int x, int y){
