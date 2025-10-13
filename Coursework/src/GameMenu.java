@@ -4,8 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,6 +14,8 @@ public class GameMenu extends JFrame {
     private JTextArea pauseText;
     private ArrayList<Ant> ants = new ArrayList<Ant>();
     private JPanel gamePlay;
+    private JTextArea stats;
+    private JPanel statsPanel;
     private GameplayGrid grid= new GameplayGrid(this);
     private int food = 0;
     private Boolean controlDown = false;
@@ -41,6 +41,8 @@ public class GameMenu extends JFrame {
         pauseMenu.add(back);
         pauseMenu.setBackground(new Color(150,75,0));
         gamePanel.setBackground(new Color(150,75,0));
+        stats.setBackground(new Color(150,75,0));
+        stats.setText("Food: 0");
         gamePanel.setFocusable(true);
         gamePanel.setLayout(new FlowLayout());
         gamePanel.add(pauseMenu);
@@ -82,8 +84,8 @@ public class GameMenu extends JFrame {
             }
         });
 
-        Ant ant1=new Ant();
-        Ant ant2=new Ant();
+        Ant ant1=new Ant(this, 0 ,5);
+        Ant ant2=new Ant(this, 1 ,5);
         ants.add(ant1);
         ants.add(ant2);
         setTile(0,5,ant1);
@@ -103,27 +105,31 @@ public class GameMenu extends JFrame {
             }
         }
     }
-    public Component getTile(int x, int y){
+    public JPanel getTile(int x, int y){
         try {
-            GridLayout layout = (GridLayout) grid.getLayout();
-            int columns = layout.getColumns();
-            return grid.getComponent(columns * y + x).getComponentAt(0, 0);
+            return grid.getTile(x,y);
         }catch(ArrayIndexOutOfBoundsException e){
             return null;
         }
     }
     public void addFood(){
         food++;
+        updateStats();
     }
-    public void addRandomFood(){
-        Random rand = new Random();
-        int x= rand.nextInt(10);
-        int y= rand.nextInt(10);
-        if(! (getTile(x,y) instanceof Ant  || getTile(x,y) instanceof Pheromone || getTile(x,y) instanceof Food)){
-            setTile(x,y,new Food());
-        }
-
+//    public void addRandomFood(){
+//        Random rand = new Random();
+//        int x= rand.nextInt(10);
+//        int y= rand.nextInt(10);
+//        if(! (getTile(x,y) instanceof Ant  || getTile(x,y) instanceof Pheromone || getTile(x,y) instanceof Food)){
+//            setTile(x,y,new Food());
+//        }
+//
+//    }
+    public void updateStats(){
+        stats.setText("Food: "+food);
     }
-    
+    public GameplayGrid getGrid(){
+        return grid;
+    }
 
 }

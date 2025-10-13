@@ -10,17 +10,21 @@ public class Ant extends JButton {
     private int x=0;
     private int y=0;
     private GameMenu menu;
+    private GameplayGrid grid;
     Boolean playing=false;
-    public Ant(){
+    public Ant(GameMenu menu, int x, int y){
+        this.x=x;
+        this.y=y;
+        this.menu=menu;
+        this.grid=menu.getGrid();
         setIcon(new ImageIcon("./Ant.png"));
         setBorder(new EmptyBorder(0, 0, 0, 0));
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                getMenu();
                 menu.changeAnt();
                 playing=true;
                // Give focus back to the gameMenu after being clicked
-                Main.game.getFrames().get(2).transferFocus();
+                menu.transferFocus();
 
             }
         });
@@ -41,11 +45,16 @@ public class Ant extends JButton {
             break;
             default:
         }
-        getMenu();
 
-        Component tile = menu.getTile(x+dx,y+dy);
+        JPanel panel = menu.getTile(x+dx,y+dy);
+        Component tile=null;
+        if(panel!=null){
+            tile=panel.getComponent(0);
+        }
+
         //Cannot move to a space occupied by another ant
         if(tile instanceof Ant){
+            System.out.println("cant move into ant");
             return;
         }
         if(tile instanceof Food){
@@ -53,20 +62,25 @@ public class Ant extends JButton {
         }
         if(x+dx>=0 && y+dy>=0){
             menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
-            menu.setTile(x+dx,y+dy,this);
+            x=x+dx;
+            y=y+dy;
+            menu.setTile(x,y,this);
+            if(x<grid.getCornerX()){
+                grid.setCorner(x,grid.getCornerY());
+            }
+            if(y<grid.getCornerY()){
+                grid.setCorner(grid.getCornerX(),y);
+            }
+            GridLayout layout = (GridLayout) grid.getLayout();
+            int columns=layout.getColumns();
+            int rows=layout.getRows();
+
         }
-    }
-    public void setCoordinates(int x, int y){
-        this.x=x;
-        this.y=y;
     }
     public Boolean getPlaying(){
         return playing;
     }
     public void setPlaying(Boolean playing){
         this.playing = playing;
-    }
-    public void getMenu(){
-        menu= (GameMenu) (getParent().getParent().getParent().getParent().getParent().getParent().getParent());
     }
 }
