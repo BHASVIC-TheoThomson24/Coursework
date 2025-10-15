@@ -54,7 +54,6 @@ public class Ant extends JButton {
 
         //Cannot move to a space occupied by another ant
         if(tile instanceof Ant){
-            System.out.println("cant move into ant");
             return;
         }
         if(tile instanceof Food){
@@ -74,6 +73,9 @@ public class Ant extends JButton {
             GridLayout layout = (GridLayout) grid.getLayout();
             int columns=layout.getColumns();
             int rows=layout.getRows();
+            if(x>=grid.getCornerX()+columns){
+                grid.setCorner(grid.getCornerX()+1,grid.getCornerY());
+            }
 
         }
     }

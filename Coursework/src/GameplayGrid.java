@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameplayGrid extends JPanel{
     private ArrayList<JPanel> tiles = new ArrayList<>();
@@ -56,7 +57,20 @@ public class GameplayGrid extends JPanel{
                     JPanel p = new JPanel();
                     p.setLayout(new BorderLayout());
                     p.setSize(50,50);
-                    p.add(new JLabel(new ImageIcon("./EmptyTile.png")));
+                    Random rand=new Random();
+                    int value=rand.nextInt(100);
+                    JComponent random;
+                    if(value<=84){
+                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
+                    }
+                    else if(value<=94){
+                        random=new Food();
+                    }
+                    else{
+                        random=new Ant(menu,x,i-1);
+                        menu.addAnt((Ant) random);
+                    }
+                    p.add(random);
                     tiles.add(width*i-1,p);
                     if(!maxColumns){
                         add(p,columns*i-1);
@@ -74,13 +88,13 @@ public class GameplayGrid extends JPanel{
                     layout.setRows(++rows);
                 }
                 //Fill row
-                for(int i=1;i<=columns;i++){
+                for(int i=1;i<=width;i++){
                     JPanel p = new JPanel();
                     p.setLayout(new BorderLayout());
                     p.setSize(50,50);
                     p.add(new JLabel(new ImageIcon("./EmptyTile.png")));
                     tiles.add(p);
-                    if(!maxRows){
+                    if(!maxRows && i>getCornerX() && i<=getCornerX()+columns){
                         add(p);
                     }
                 }
@@ -117,7 +131,14 @@ public class GameplayGrid extends JPanel{
         if(x>=width || y>=height){
             return null;
         }
-        JPanel output=tiles.get(width*y+x);
+        JPanel output;
+        try{
+            output=tiles.get(width*y+x);
+
+        }
+        catch(IndexOutOfBoundsException e){
+            return null;
+        }
         return output;
     }
     public int getCornerX(){
@@ -126,4 +147,5 @@ public class GameplayGrid extends JPanel{
     public int getCornerY(){
         return cornerY;
     }
+
 }

@@ -13,6 +13,7 @@ public class GameMenu extends JFrame {
     private JPanel pauseMenu;
     private JTextArea pauseText;
     private ArrayList<Ant> ants = new ArrayList<Ant>();
+    private ArrayList<Ant> newAnts= new ArrayList<>();
     private JPanel gamePlay;
     private JTextArea stats;
     private JPanel statsPanel;
@@ -79,6 +80,7 @@ public class GameMenu extends JFrame {
                                 ant.move(direction);
                             }
                         }
+                        updateAnts();
                     }
                 }
             }
@@ -131,5 +133,15 @@ public class GameMenu extends JFrame {
     public GameplayGrid getGrid(){
         return grid;
     }
+    //Ants added in 2 stages to avoid concurrency error (new ants added while looping through ant arraylist)
+    public void addAnt(Ant ant){
+        newAnts.add(ant);
+    }
 
+    public void updateAnts(){
+        for(Ant ant : newAnts) {
+            ants.add(ant);
+        }
+        newAnts.clear();
+    }
 }
