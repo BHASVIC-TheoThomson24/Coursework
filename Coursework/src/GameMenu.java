@@ -20,6 +20,7 @@ public class GameMenu extends JFrame {
     private GameplayGrid grid= new GameplayGrid(this);
     private int food = 0;
     private Boolean controlDown = false;
+    private Ant mainAnt;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -139,9 +140,7 @@ public class GameMenu extends JFrame {
     }
 
     public void updateAnts(){
-        for(Ant ant : newAnts) {
-            ants.add(ant);
-        }
+        ants.addAll(newAnts);
         newAnts.clear();
     }
 }

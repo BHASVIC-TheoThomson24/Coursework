@@ -72,7 +72,7 @@ public class Ant extends JButton {
             }
             GridLayout layout = (GridLayout) grid.getLayout();
             int columns=layout.getColumns();
-            int rows=layout.getRows();
+            int rows = layout.getRows();
             if(x>=grid.getCornerX()+columns){
                 grid.setCorner(grid.getCornerX()+1,grid.getCornerY());
             }

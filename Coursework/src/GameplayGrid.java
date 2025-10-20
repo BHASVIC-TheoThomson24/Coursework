@@ -92,7 +92,20 @@ public class GameplayGrid extends JPanel{
                     JPanel p = new JPanel();
                     p.setLayout(new BorderLayout());
                     p.setSize(50,50);
-                    p.add(new JLabel(new ImageIcon("./EmptyTile.png")));
+                    Random rand=new Random();
+                    int value=rand.nextInt(100);
+                    JComponent random;
+                    if(value<=84){
+                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
+                    }
+                    else if(value<=94){
+                        random=new Food();
+                    }
+                    else{
+                        random=new Ant(menu,i-1,y);
+                        menu.addAnt((Ant) random);
+                    }
+                    p.add(random);
                     tiles.add(p);
                     if(!maxRows && i>getCornerX() && i<=getCornerX()+columns){
                         add(p);
