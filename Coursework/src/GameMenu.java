@@ -20,6 +20,7 @@ public class GameMenu extends JFrame {
     private GameplayGrid grid= new GameplayGrid(this);
     private int food = 0;
     private Boolean controlDown = false;
+    //Make camera follow mainAnt
     private Ant mainAnt;
     public GameMenu(Game input) {
         super();

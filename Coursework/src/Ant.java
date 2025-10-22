@@ -3,14 +3,13 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
 
 public class Ant extends JButton {
-    private int x=0;
-    private int y=0;
-    private GameMenu menu;
-    private GameplayGrid grid;
+    private int x;
+    private int y;
+    private final GameMenu menu;
+    private final GameplayGrid grid;
     Boolean playing=false;
     public Ant(GameMenu menu, int x, int y){
         this.x=x;
@@ -35,13 +34,13 @@ public class Ant extends JButton {
        int dy=0;
        //increasing y moves down to next row
         switch(direction){
-            case 0: dx=0; dy=-1;
+            case 0: dy=-1;
             break;
-            case 1: dx=1; dy=0;
+            case 1: dx=1;
             break;
-            case 2: dx=0; dy=1;
+            case 2: dy=1;
             break;
-            case 3: dx=-1; dy=0;
+            case 3: dx=-1;
             break;
             default:
         }
@@ -63,7 +62,9 @@ public class Ant extends JButton {
             menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
             x=x+dx;
             y=y+dy;
+
             menu.setTile(x,y,this);
+
             if(x<grid.getCornerX()){
                 grid.setCorner(x,grid.getCornerY());
             }
@@ -76,7 +77,9 @@ public class Ant extends JButton {
             if(x>=grid.getCornerX()+columns){
                 grid.setCorner(grid.getCornerX()+1,grid.getCornerY());
             }
-
+            if(y>=grid.getCornerY()+rows){
+                grid.setCorner(grid.getCornerX(),grid.getCornerY()+1);
+            }
         }
     }
     public Boolean getPlaying(){

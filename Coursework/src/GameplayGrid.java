@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameplayGrid extends JPanel{
-    private ArrayList<JPanel> tiles = new ArrayList<>();
-    private GameMenu menu;
+    private final ArrayList<JPanel> tiles = new ArrayList<>();
+    private final GameMenu menu;
     //Make 10x10 grid of tiles
     private int height=10;
     private int width=10;
@@ -53,7 +53,7 @@ public class GameplayGrid extends JPanel{
                 }
 
                 //Fill column with empty tiles
-                for(int i=1;i<=rows;i++){
+                for(int i=1;i<=height;i++){
                     JPanel p = new JPanel();
                     p.setLayout(new BorderLayout());
                     p.setSize(50,50);
@@ -72,16 +72,14 @@ public class GameplayGrid extends JPanel{
                     }
                     p.add(random);
                     tiles.add(width*i-1,p);
-                    if(!maxColumns){
-                        add(p,columns*i-1);
+                    if(!maxColumns && i >= cornerY+1 && i<=getCornerY()+rows){
+                        add(p,columns*(i-cornerY)-1);
                     }
                 }
-                if(maxColumns){
-                    setCorner(Math.max(0,x-19),Math.max(0,y-19));
-                }
+
             }
 
-            if(y >rows-1){
+            if(y > height-1){
                 ++height;
                 //Add a row
                 if(!maxRows){
@@ -107,13 +105,11 @@ public class GameplayGrid extends JPanel{
                     }
                     p.add(random);
                     tiles.add(p);
-                    if(!maxRows && i>getCornerX() && i<=getCornerX()+columns){
+                    if(!maxRows && i>=cornerX+1 && i<=cornerX+columns){
                         add(p);
                     }
                 }
-                if(maxRows){
-                    setCorner(Math.max(0,x-19),Math.max(0,y-19));
-                }
+
             }
 
             int index = width * y + x;
