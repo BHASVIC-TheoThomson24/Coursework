@@ -21,6 +21,7 @@ public class Ant extends JButton {
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 menu.changeAnt();
+                setMainAnt();
                 playing=true;
                // Give focus back to the gameMenu after being clicked
                 menu.transferFocus();
@@ -65,21 +66,7 @@ public class Ant extends JButton {
 
             menu.setTile(x,y,this);
 
-            if(x<grid.getCornerX()){
-                grid.setCorner(x,grid.getCornerY());
-            }
-            if(y<grid.getCornerY()){
-                grid.setCorner(grid.getCornerX(),y);
-            }
-            GridLayout layout = (GridLayout) grid.getLayout();
-            int columns=layout.getColumns();
-            int rows = layout.getRows();
-            if(x>=grid.getCornerX()+columns){
-                grid.setCorner(grid.getCornerX()+1,grid.getCornerY());
-            }
-            if(y>=grid.getCornerY()+rows){
-                grid.setCorner(grid.getCornerX(),grid.getCornerY()+1);
-            }
+
         }
     }
     public Boolean getPlaying(){
@@ -87,5 +74,25 @@ public class Ant extends JButton {
     }
     public void setPlaying(Boolean playing){
         this.playing = playing;
+    }
+    public void moveCamera(){
+        if(x<grid.getCornerX()){
+            grid.setCorner(x,grid.getCornerY());
+        }
+        if(y<grid.getCornerY()){
+            grid.setCorner(grid.getCornerX(),y);
+        }
+        GridLayout layout = (GridLayout) grid.getLayout();
+        int columns=layout.getColumns();
+        int rows = layout.getRows();
+        if(x>=grid.getCornerX()+columns){
+            grid.setCorner(grid.getCornerX()+1,grid.getCornerY());
+        }
+        if(y>=grid.getCornerY()+rows){
+            grid.setCorner(grid.getCornerX(),grid.getCornerY()+1);
+        }
+    }
+    public void setMainAnt(){
+        menu.setMainAnt(this);
     }
 }

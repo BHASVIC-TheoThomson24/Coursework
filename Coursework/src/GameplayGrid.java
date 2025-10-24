@@ -137,6 +137,12 @@ public class GameplayGrid extends JPanel{
         }
     }
     public JPanel getTile(int x, int y){
+        if(x<0){
+            return null;
+        }
+        if(y<0){
+            return null;
+        }
         if(x>=width || y>=height){
             return null;
         }
@@ -156,5 +162,14 @@ public class GameplayGrid extends JPanel{
     public int getCornerY(){
         return cornerY;
     }
-
+    public void addRandomFood() {
+        Random rand = new Random();
+        int x = rand.nextInt(width);
+        int y = rand.nextInt(height);
+        JPanel panel = getTile(x, y);
+        Component tile = panel.getComponent(0);
+        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
+            setTile(x, y, new Food());
+        }
+    }
 }

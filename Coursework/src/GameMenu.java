@@ -9,19 +9,19 @@ import java.util.Random;
 
 public class GameMenu extends JFrame {
     private JPanel gamePanel;
-    private Game game;
+    private final Game game;
     private JPanel pauseMenu;
     private JTextArea pauseText;
-    private ArrayList<Ant> ants = new ArrayList<Ant>();
-    private ArrayList<Ant> newAnts= new ArrayList<>();
+    private final ArrayList<Ant> ants = new ArrayList<>();
+    private final ArrayList<Ant> newAnts= new ArrayList<>();
     private JPanel gamePlay;
     private JTextArea stats;
-    private JPanel statsPanel;
-    private GameplayGrid grid= new GameplayGrid(this);
+    private final GameplayGrid grid= new GameplayGrid(this);
     private int food = 0;
     private Boolean controlDown = false;
     //Make camera follow mainAnt
     private Ant mainAnt;
+    private JPanel statsPanel;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -35,11 +35,7 @@ public class GameMenu extends JFrame {
         pauseText.setEditable(false);
         pauseText.setFocusable(false);
         JButton back = new JButton("Back");
-        back.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.setScreen(0);
-            }
-        });
+        back.addActionListener(e -> game.setScreen(0));
         pauseMenu.setLayout(new FlowLayout());
         pauseMenu.add(back);
         pauseMenu.setBackground(new Color(150,75,0));
@@ -82,6 +78,9 @@ public class GameMenu extends JFrame {
                                 ant.move(direction);
                             }
                         }
+                        if(mainAnt != null){
+                            mainAnt.moveCamera();
+                        }
                         updateAnts();
                     }
                 }
@@ -107,6 +106,7 @@ public class GameMenu extends JFrame {
             for (Ant ant : ants) {
                 ant.setPlaying(false);
             }
+
         }
     }
     public JPanel getTile(int x, int y){
@@ -120,15 +120,8 @@ public class GameMenu extends JFrame {
         food++;
         updateStats();
     }
-//    public void addRandomFood(){
-//        Random rand = new Random();
-//        int x= rand.nextInt(10);
-//        int y= rand.nextInt(10);
-//        if(! (getTile(x,y) instanceof Ant  || getTile(x,y) instanceof Pheromone || getTile(x,y) instanceof Food)){
-//            setTile(x,y,new Food());
-//        }
-//
-//    }
+
+
     public void updateStats(){
         stats.setText("Food: "+food);
     }
@@ -143,5 +136,8 @@ public class GameMenu extends JFrame {
     public void updateAnts(){
         ants.addAll(newAnts);
         newAnts.clear();
+    }
+    public void setMainAnt(Ant ant){
+        mainAnt = ant;
     }
 }
