@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 public class SettingsMenu extends JFrame {
     private JPanel Settings;
-    private ImageIcon arrowUp;
-    private ImageIcon arrowDown;
-    private ImageIcon arrowUpGray;
-    private ImageIcon arrowDownGray;
+    private final ImageIcon arrowUp;
+    private final ImageIcon arrowDown;
+    private final ImageIcon arrowUpGray;
+    private final ImageIcon arrowDownGray;
     private JButton difficultyUp;
     private JButton mapUp;
     private JButton gameModeUp;
@@ -19,7 +19,7 @@ public class SettingsMenu extends JFrame {
     private JTextArea mapTextArea;
     private JTextArea gameModeTextArea;
     private JButton backButton;
-    private Game game;
+    private final Game game;
 
     public SettingsMenu(Game input) {
         super();
@@ -35,47 +35,31 @@ public class SettingsMenu extends JFrame {
         difficultyTextArea.setEditable(false);
         mapTextArea.setEditable(false);
         gameModeTextArea.setEditable(false);
-        difficultyUp.addActionListener(new ActionListener() {
-           public void actionPerformed(ActionEvent e) {
-                game.increaseDifficulty();
-                update();
-           }
+        difficultyUp.addActionListener(e -> {
+             game.increaseDifficulty();
+             update();
         });
-        difficultyDown.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.decreaseDifficulty();
-                update();
-            }
+        difficultyDown.addActionListener(e -> {
+            game.decreaseDifficulty();
+            update();
         });
-        mapUp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.increaseMap();
-                update();
-            }
+        mapUp.addActionListener(e -> {
+            game.increaseMap();
+            update();
         });
-        mapDown.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.decreaseMap();
-                update();
-            }
+        mapDown.addActionListener(e -> {
+            game.decreaseMap();
+            update();
         });
-        gameModeUp.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.increaseMode();
-                update();
-            }
+        gameModeUp.addActionListener(e -> {
+            game.increaseMode();
+            update();
         });
-        gameModeDown.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                game.decreaseMode();
-                update();
-            }
+        gameModeDown.addActionListener(e -> {
+            game.decreaseMode();
+            update();
         });
-        backButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-             game.setScreen(0);
-            }
-        });
+        backButton.addActionListener(e -> game.setScreen(0));
         update();
     }
     public void update(){

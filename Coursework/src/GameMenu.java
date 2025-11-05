@@ -1,11 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class GameMenu extends JFrame {
     private JPanel gamePanel;
@@ -21,7 +18,6 @@ public class GameMenu extends JFrame {
     private Boolean controlDown = false;
     //Make camera follow mainAnt
     private Ant mainAnt;
-    private JPanel statsPanel;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -32,6 +28,7 @@ public class GameMenu extends JFrame {
         gamePlay.setLayout(new GridLayout(1,1));
         gamePlay.add(grid);
         setAlwaysOnTop(true);
+        pauseMenu.setVisible(false);
         pauseText.setEditable(false);
         pauseText.setFocusable(false);
         JButton back = new JButton("Back");
@@ -45,17 +42,19 @@ public class GameMenu extends JFrame {
         gamePanel.setFocusable(true);
         gamePanel.setLayout(new FlowLayout());
         gamePanel.add(pauseMenu);
+
         gamePanel.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    boolean flag = pauseText.isVisible();
+                    game.togglePaused();
                     //If pause menu is visible it will hide, and visa versa
-                   pauseText.setVisible(!flag);
+                   pauseMenu.setVisible(game.isPaused());
                    for (Component c : pauseMenu.getComponents()) {
-                       c.setVisible(!flag);
+                       c.setVisible(game.isPaused());
                    }
                 }
-                else{
+                //Only run movement checks when the game is not paused
+                else if(!game.isPaused()){
                     int direction=-1;
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_CONTROL: controlDown=!controlDown;

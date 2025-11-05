@@ -18,15 +18,14 @@ public class Ant extends JButton {
         this.grid=menu.getGrid();
         setIcon(new ImageIcon("./Ant.png"));
         setBorder(new EmptyBorder(0, 0, 0, 0));
-        addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                menu.changeAnt();
-                setMainAnt();
-                playing=true;
-               // Give focus back to the gameMenu after being clicked
-                menu.transferFocus();
+        //When ant is clicked
+        addActionListener(e -> {
+            menu.changeAnt();
+            setMainAnt();
+            playing=true;
+           // Give focus back to the gameMenu after being clicked
+            menu.transferFocus();
 
-            }
         });
     }
     //0=up, 1=right, 2=down, 3=left
@@ -75,6 +74,7 @@ public class Ant extends JButton {
     public void setPlaying(Boolean playing){
         this.playing = playing;
     }
+    //Only used by the ant which the camera is following
     public void moveCamera(){
         if(x<grid.getCornerX()){
             grid.setCorner(x,grid.getCornerY());

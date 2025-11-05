@@ -162,14 +162,26 @@ public class GameplayGrid extends JPanel{
     public int getCornerY(){
         return cornerY;
     }
+    //50 seconds average per tile on lowest difficulty to 500 seconds on highest difficulty.
     public void addRandomFood() {
         Random rand = new Random();
-        int x = rand.nextInt(width);
-        int y = rand.nextInt(height);
-        JPanel panel = getTile(x, y);
-        Component tile = panel.getComponent(0);
-        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
-            setTile(x, y, new Food());
+        int difficulty=Main.game.getDifficulty();
+        float floatNumFood= (float) (width * height * (10 - difficulty)) /5000;
+        int numFood= (int) (floatNumFood);
+        // if numFood is 2.04, there will be a 96% chance for 2 food, and 4% chance for 3 food to attempt spawning
+        if(floatNumFood-numFood > Math.random()){
+            numFood++;
         }
+        //For each food to be added, get a random tile and check if it is available to be changed
+        for(int i=0;i< numFood;i++) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            JPanel panel = getTile(x, y);
+            Component tile = panel.getComponent(0);
+            if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
+                setTile(x, y, new Food());
+            }
+        }
+
     }
 }

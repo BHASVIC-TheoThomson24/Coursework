@@ -2,10 +2,11 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class Game {
-    private MainMenu mainMenu;
-    private SettingsMenu settingsMenu;
-    private GameMenu gameMenu;
-    private SaveMenu saveMenu;
+    private final MainMenu mainMenu;
+    private final SettingsMenu settingsMenu;
+    private final GameMenu gameMenu;
+    private final SaveMenu saveMenu;
+    private boolean paused;
     ArrayList<JFrame> frames=new ArrayList<>();
     public Game(){
         mainMenu=new MainMenu(this);
@@ -93,5 +94,11 @@ public class Game {
     }
     public ArrayList<JFrame> getFrames(){
         return frames;
+    }
+    public boolean isPaused(){
+        return paused;
+    }
+    public void togglePaused(){
+        this.paused=!paused;
     }
 }

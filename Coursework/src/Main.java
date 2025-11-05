@@ -3,6 +3,7 @@ public class Main {
     public static void main(String[] args){
         game.start();
         long lastTime=System.nanoTime();
+        //noinspection InfiniteLoopStatement
         while(true){
             long time=System.nanoTime();
             long delta = time-lastTime;
@@ -10,7 +11,9 @@ public class Main {
             if(delta >= 100000000){
                 lastTime=time;
                 GameMenu menu = (GameMenu) game.getFrames().get(2);
-                menu.getGrid().addRandomFood();
+                if(!game.isPaused()){
+                    menu.getGrid().addRandomFood();
+                }
             }
 
         }
