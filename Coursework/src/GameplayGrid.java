@@ -166,21 +166,31 @@ public class GameplayGrid extends JPanel{
     public void addRandomFood() {
         Random rand = new Random();
         int difficulty=Main.game.getDifficulty();
-        float floatNumFood= (float) (width * height * (10 - difficulty)) /5000;
+        float floatNumFood= (float) (width * height * (10 - difficulty)) /250000;
         int numFood= (int) (floatNumFood);
         // if numFood is 2.04, there will be a 96% chance for 2 food, and 4% chance for 3 food to attempt spawning
         if(floatNumFood-numFood > Math.random()){
             numFood++;
         }
         //For each food to be added, get a random tile and check if it is available to be changed
+
+
         for(int i=0;i< numFood;i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            JPanel panel = getTile(x, y);
-            Component tile = panel.getComponent(0);
-            if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
-                setTile(x, y, new Food());
+            for(int j=0;j<10;j++){
+                int dx= rand.nextInt(7)-3;
+                int dy= rand.nextInt(7)-3;
+                JPanel panel = getTile(x+dx, y+dy);
+                if(panel!=null){
+                    Component tile = panel.getComponent(0);
+                    if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
+                        setTile(x+dx, y+dy, new Food());
+                    }
+                }
+
             }
+
         }
 
     }

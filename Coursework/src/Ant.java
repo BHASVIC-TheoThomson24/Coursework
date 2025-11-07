@@ -1,8 +1,7 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 
 public class Ant extends JButton {
@@ -10,7 +9,11 @@ public class Ant extends JButton {
     private int y;
     private final GameMenu menu;
     private final GameplayGrid grid;
-    Boolean playing=false;
+    private Boolean playing=false;
+    private Boolean hasFood=false;
+    private Boolean leaveTrail=false;
+    private int directionMoved=-1;
+    private int previousDirection=-1;
     public Ant(GameMenu menu, int x, int y){
         this.x=x;
         this.y=y;
@@ -56,14 +59,40 @@ public class Ant extends JButton {
             return;
         }
         if(tile instanceof Food){
-            menu.addFood();
+            if(!hasFood){
+                hasFood=true;
+                menu.addFood();
+            }
+            else{
+                return;
+            }
         }
         if(x+dx>=0 && y+dy>=0){
-            menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
+            if(directionMoved==-1){
+                directionMoved=direction;
+                previousDirection=direction;
+            }
+            previousDirection=directionMoved;
+            directionMoved=direction;
+            if(leaveTrail){
+                try{
+                    menu.setTile(x,y,new Pheromone(previousDirection+2,directionMoved));
+
+                }catch(Error e){
+                    return;
+                }
+            }
+            else{
+                menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
+
+            }
             x=x+dx;
             y=y+dy;
 
             menu.setTile(x,y,this);
+            if(Math.random()<0.01){
+                eat();
+            }
 
 
         }
@@ -94,5 +123,21 @@ public class Ant extends JButton {
     }
     public void setMainAnt(){
         menu.setMainAnt(this);
+    }
+    public void setFood(Boolean b){
+        hasFood=b;
+    }
+    public Boolean getFood(){
+        return hasFood;
+    }
+    public void eat(){
+        hasFood=false;
+        menu.decreaseFood();
+    }
+    public void toggleTrail(){
+        leaveTrail=!leaveTrail;
+    }
+    public void setTrail(boolean b){
+        leaveTrail=b;
     }
 }

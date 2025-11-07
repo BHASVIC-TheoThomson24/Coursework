@@ -12,8 +12,9 @@ public class Main {
                 lastTime=time;
                 GameMenu menu = (GameMenu) game.getFrames().get(2);
                 if(!game.isPaused()){
-                    menu.getGrid().addRandomFood();
+                    menu.tick();
                 }
+
             }
 
         }

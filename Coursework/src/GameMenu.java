@@ -16,6 +16,7 @@ public class GameMenu extends JFrame {
     private final GameplayGrid grid= new GameplayGrid(this);
     private int food = 0;
     private Boolean controlDown = false;
+    private JPanel statsPanel;
     //Make camera follow mainAnt
     private Ant mainAnt;
     public GameMenu(Game input) {
@@ -59,6 +60,8 @@ public class GameMenu extends JFrame {
                     switch (e.getKeyCode()) {
                         case KeyEvent.VK_CONTROL: controlDown=!controlDown;
                         break;
+                        case KeyEvent.VK_SPACE: mainAnt.toggleTrail();
+                        break;
                         case KeyEvent.VK_W: direction=0;
                         break;
                         case KeyEvent.VK_D: direction=1;
@@ -101,6 +104,10 @@ public class GameMenu extends JFrame {
         grid.setTile(x,y,tile);
     }
     public void changeAnt(){
+        if(mainAnt!=null){
+            mainAnt.setTrail(false);
+
+        }
         if(!controlDown) {
             for (Ant ant : ants) {
                 ant.setPlaying(false);
@@ -138,5 +145,28 @@ public class GameMenu extends JFrame {
     }
     public void setMainAnt(Ant ant){
         mainAnt = ant;
+    }
+    //tick every 100 ms
+    public void tick(){
+        grid.addRandomFood();
+        //Average of 5 seconds to pick up food per ant
+        for(Ant ant : ants){
+            //Chance for ant to eat food if it is carrying some.
+            if(Math.random()<0.02){
+                if(ant.getFood()){
+                    ant.setFood(false);
+                    //50% chance for food to be deleted when it stops carrying, so that the player can increase food without new ants.
+                    if(Math.random()<0.5){
+                        decreaseFood();
+                    }
+                }
+            }
+        }
+        updateStats();
+    }
+    public void decreaseFood(){
+        if(food>0) {
+            food--;
+        }
     }
 }
