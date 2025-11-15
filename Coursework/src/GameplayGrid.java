@@ -1,30 +1,31 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 public class GameplayGrid extends JPanel{
-    private final ArrayList<JPanel> tiles = new ArrayList<>();
+    private ArrayList<JPanel> tiles = new ArrayList<>();
     private final GameMenu menu;
     //Make 10x10 grid of tiles
     private int height=10;
     private int width=10;
     private int cornerX=0;
     private int cornerY=0;
+    public boolean expanding=false;
     public GameplayGrid(GameMenu menu) {
         setVisible(true);
         this.menu = menu;
         setLayout(new GridLayout(10,10));
         for(int i=0;i<100;i++){
-            tiles.add(new JPanel());
+            JPanel panel = new JPanel();
+            panel.add(new EmptyTile());
+            tiles.add(panel);
         }
         for(JPanel p : tiles){
             p.setLayout(new BorderLayout());
             p.setSize(50,50);
            add(p);
-        }
-        for(int i=0;i<100;i++){
-            setTile(i/10,i%10, new JLabel(new ImageIcon("./EmptyTile.png")));
         }
 
         for (Component c : getComponents()) {
@@ -40,48 +41,83 @@ public class GameplayGrid extends JPanel{
         if (x < 0 || y < 0) {
             System.out.println("Invalid movement");
         }
-        else{
+        else {
             //If they move past right edge of grid, add a new column
-            boolean maxColumns= x>=20;
-            boolean maxRows= y>=20;
-
-            if(x >width-1){
+            boolean maxColumns = x >= 20;
+            boolean maxRows = y >= 20;
+            if (x > width - 1) {
+                expanding = true;
                 ++width;
+                System.out.println("New column: " + width);
                 //Add a column
-                if(!maxColumns){
+                if (!maxColumns) {
                     layout.setColumns(++columns);
                 }
 
                 //Fill column with empty tiles
-                for(int i=1;i<=height;i++){
+                ArrayList<JPanel> newTiles = new ArrayList<>(width * height);
+                for(int i=0;i<width*height;i++){
+                    newTiles.add(null);
+                }
+                for (int i = 0; i < height; i++) {
+                    for (int j = 0; j < width - 1; j++) {
+                        newTiles.set(i*width+j,tiles.get(i * (width - 1) + j));
+                    }
                     JPanel p = new JPanel();
                     p.setLayout(new BorderLayout());
-                    p.setSize(50,50);
-                    Random rand=new Random();
-                    int value=rand.nextInt(100);
+                    p.setSize(50, 50);
+                    Random rand = new Random();
+                    int value = rand.nextInt(100);
                     JComponent random;
-                    if(value<=84){
-                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
-                    }
-                    else if(value<=94){
-                        random=new Food();
-                    }
-                    else{
-                        random=new Ant(menu,x,i-1);
+                    if (value <= 84) {
+                        random = new EmptyTile();
+                    } else if (value <= 94) {
+                        random = new Food();
+                    } else {
+                        random = new Ant(menu, x, i - 1);
                         menu.addAnt((Ant) random);
                     }
                     p.add(random);
-                    tiles.add(width*i-1,p);
-                    if(!maxColumns && i >= cornerY+1 && i<=getCornerY()+rows){
-                        add(p,columns*(i-cornerY)-1);
-                    }
+                    newTiles.set(i*width+width-1, p);
+
                 }
 
+                tiles = newTiles;
+                setCorner(getCornerX(),getCornerY());
+                expanding = false;
             }
+//                for(int i=1;i<=height;i++){
+//                    JPanel p = new JPanel();
+//                    p.setLayout(new BorderLayout());
+//                    p.setSize(50,50);
+//                    Random rand=new Random();
+//                    int value=rand.nextInt(100);
+//                    JComponent random;
+//                    if(value<=84){
+//                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
+//                    }
+//                    else if(value<=94){
+//                        random=new Food();
+//                    }
+//                    else{
+//                        random=new Ant(menu,x,i-1);
+//                        menu.addAnt((Ant) random);
+//                    }
+//                    p.add(random);
+//                    tiles.add(width*i-1,p);
+//
+//
+//                    if(!maxColumns && i >= cornerY+1 && i<=getCornerY()+rows){
+//                        add(p,columns*(i-cornerY)-1);
+//                    }
+//                }
+//                expanding=false;
 
             if(y > height-1){
+                expanding=true;
                 ++height;
                 //Add a row
+                System.out.println("New row: "+ height);
                 if(!maxRows){
                     layout.setRows(++rows);
                 }
@@ -94,7 +130,7 @@ public class GameplayGrid extends JPanel{
                     int value=rand.nextInt(100);
                     JComponent random;
                     if(value<=84){
-                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
+                        random=new EmptyTile();
                     }
                     else if(value<=94){
                         random=new Food();
@@ -105,18 +141,21 @@ public class GameplayGrid extends JPanel{
                     }
                     p.add(random);
                     tiles.add(p);
+
                     if(!maxRows && i>=cornerX+1 && i<=cornerX+columns){
                         add(p);
                     }
                 }
-
+                expanding=false;
             }
 
             int index = width * y + x;
-            //Clear tile to create space
-            tiles.get(index).removeAll();
-            //Add new tile
-            tiles.get(index).add(tile,BorderLayout.CENTER);
+            if(index<tiles.size()){
+                //Clear tile to create space
+                tiles.get(index).removeAll();
+                //Add new tile
+                tiles.get(index).add(tile,BorderLayout.CENTER);
+            }
 
         }
         revalidate();
@@ -183,7 +222,13 @@ public class GameplayGrid extends JPanel{
                 int dy= rand.nextInt(7)-3;
                 JPanel panel = getTile(x+dx, y+dy);
                 if(panel!=null){
-                    Component tile = panel.getComponent(0);
+                    Component tile=null;
+                    if(panel.getComponentCount()>0){
+                        tile = panel.getComponent(0);
+                    }
+                    else{
+                        panel.add(new EmptyTile());
+                    }
                     if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
                         setTile(x+dx, y+dy, new Food());
                     }
@@ -194,4 +239,43 @@ public class GameplayGrid extends JPanel{
         }
 
     }
+    public int maxX(){
+        return width-1;
+    }
+    public int maxY(){
+        return height-1;
+    }
+    //Used for testing
+    public void checkMissing(){
+        Iterator<JPanel> it = tiles.iterator();
+        int missing=0;
+        while(it.hasNext()){
+            try{
+                it.next().getComponent(0);
+            }catch (IndexOutOfBoundsException e){
+                missing++;
+            }
+        }
+        if(missing!=0){
+            System.out.println("Missing: "+missing);
+        }
+    }
+    //Only clears missing tiles in the visible area
+    public void removeMissing(){
+        GridLayout layout = (GridLayout) getLayout();
+        int columns= layout.getColumns();
+        int rows= layout.getRows();
+        for(int i=0;i<rows;i++){
+            for(int j=0;j<columns;j++){
+                JPanel panel = getTile(cornerX+i,cornerY+j);
+                if (panel!=null && panel.getComponentCount() == 0) {
+                    panel.add(new EmptyTile());
+                }
+            }
+        }
+    }
+    public int tileSize(){
+        return tiles.size();
+    }
+
 }

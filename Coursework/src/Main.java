@@ -1,3 +1,5 @@
+import java.util.ConcurrentModificationException;
+
 public class Main {
     public static Game game=new Game();
     public static void main(String[] args){
@@ -11,9 +13,21 @@ public class Main {
             if(delta >= 100000000){
                 lastTime=time;
                 GameMenu menu = (GameMenu) game.getFrames().get(2);
-                if(!game.isPaused()){
-                    menu.tick();
-                }
+                GameplayGrid grid = menu.getGrid();
+                int maxSize=0;
+                    if(!game.isPaused() ){
+                        try{
+                            menu.tick();
+                            if(grid.tileSize()<maxSize){
+                                throw new Error();
+                            }
+                            else{
+                                maxSize=grid.tileSize();
+                            }
+                        }catch (ConcurrentModificationException ignored){}
+                    }
+
+
 
             }
 

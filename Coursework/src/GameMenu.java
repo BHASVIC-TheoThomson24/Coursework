@@ -148,9 +148,13 @@ public class GameMenu extends JFrame {
     }
     //tick every 100 ms
     public void tick(){
+        grid.removeMissing();
         grid.addRandomFood();
         //Average of 5 seconds to pick up food per ant
         for(Ant ant : ants){
+            if(Math.random()<0.05 && !ant.getPlaying()){
+                ant.tick();
+            }
             //Chance for ant to eat food if it is carrying some.
             if(Math.random()<0.02){
                 if(ant.getFood()){

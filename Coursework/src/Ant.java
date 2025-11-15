@@ -1,10 +1,12 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-
+import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Ant extends JButton {
+    private static final ImageIcon icon = new ImageIcon("./Ant.png");
     private int x;
     private int y;
     private final GameMenu menu;
@@ -19,7 +21,7 @@ public class Ant extends JButton {
         this.y=y;
         this.menu=menu;
         this.grid=menu.getGrid();
-        setIcon(new ImageIcon("./Ant.png"));
+        setIcon(icon);
         setBorder(new EmptyBorder(0, 0, 0, 0));
         //When ant is clicked
         addActionListener(e -> {
@@ -51,7 +53,13 @@ public class Ant extends JButton {
         JPanel panel = menu.getTile(x+dx,y+dy);
         Component tile=null;
         if(panel!=null){
-            tile=panel.getComponent(0);
+            if(panel.getComponentCount()>0){
+                tile=panel.getComponent(0);
+
+            }
+            else{
+                panel.add(new EmptyTile());
+            }
         }
 
         //Cannot move to a space occupied by another ant
@@ -83,12 +91,11 @@ public class Ant extends JButton {
                 }
             }
             else{
-                menu.setTile(x,y,new JLabel(new ImageIcon("./EmptyTile.png")));
+                menu.setTile(x,y,new EmptyTile());
 
             }
             x=x+dx;
             y=y+dy;
-
             menu.setTile(x,y,this);
             if(Math.random()<0.01){
                 eat();
@@ -139,5 +146,53 @@ public class Ant extends JButton {
     }
     public void setTrail(boolean b){
         leaveTrail=b;
+    }
+    public void tick(){
+        //Ant accesses 4 adjacent tiles
+        boolean moved = false;
+        ArrayList<JPanel> adjacentTiles = new ArrayList<>();
+        //Order matches direction e.g. tile with index 0 has direction 0 = up
+        adjacentTiles.add(grid.getTile(x,y-1));
+        adjacentTiles.add(grid.getTile(x+1,y));
+        adjacentTiles.add(grid.getTile(x,y+1));
+        adjacentTiles.add(grid.getTile(x-1,y));
+        int i=0;
+        while(!moved && i<4){
+            JPanel adjacentTile=adjacentTiles.get(i);
+            if(adjacentTile!= null) {
+                Component tile=null;
+                if(adjacentTile.getComponentCount()>0){
+                    tile = adjacentTile.getComponent(0);
+                }//Missing tile needs to be replaced
+               else{
+                    adjacentTile.add(new EmptyTile());
+                }
+                if (tile instanceof Food) {
+                    moved = true;
+                    move(i);
+                }
+            }
+            i++;
+        }
+        if(!moved){
+            int direction = getDirection();
+            move(direction);
+        }
+    }
+
+    private int getDirection() {
+        Random rand = new Random();
+            int direction = rand.nextInt(4);
+
+            //If on right edge, move left
+            if(x == grid.maxX() && direction==1){
+                direction=3;
+            }
+            //If on bottom edge, move up
+            else if(y ==grid.maxY() && direction==2){
+                direction=0;
+            }
+            //If ant is in the bottom right corner tile, move up
+        return direction;
     }
 }
