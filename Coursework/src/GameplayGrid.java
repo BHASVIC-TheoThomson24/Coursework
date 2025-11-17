@@ -48,13 +48,12 @@ public class GameplayGrid extends JPanel{
             if (x > width - 1) {
                 expanding = true;
                 ++width;
-                System.out.println("New column: " + width);
                 //Add a column
                 if (!maxColumns) {
                     layout.setColumns(++columns);
                 }
 
-                //Fill column with empty tiles
+                //Faster to recreate array than to insert new tiles in middle
                 ArrayList<JPanel> newTiles = new ArrayList<>(width * height);
                 for(int i=0;i<width*height;i++){
                     newTiles.add(null);
@@ -86,38 +85,11 @@ public class GameplayGrid extends JPanel{
                 setCorner(getCornerX(),getCornerY());
                 expanding = false;
             }
-//                for(int i=1;i<=height;i++){
-//                    JPanel p = new JPanel();
-//                    p.setLayout(new BorderLayout());
-//                    p.setSize(50,50);
-//                    Random rand=new Random();
-//                    int value=rand.nextInt(100);
-//                    JComponent random;
-//                    if(value<=84){
-//                        random=new JLabel(new ImageIcon("./EmptyTile.png"));
-//                    }
-//                    else if(value<=94){
-//                        random=new Food();
-//                    }
-//                    else{
-//                        random=new Ant(menu,x,i-1);
-//                        menu.addAnt((Ant) random);
-//                    }
-//                    p.add(random);
-//                    tiles.add(width*i-1,p);
-//
-//
-//                    if(!maxColumns && i >= cornerY+1 && i<=getCornerY()+rows){
-//                        add(p,columns*(i-cornerY)-1);
-//                    }
-//                }
-//                expanding=false;
 
             if(y > height-1){
                 expanding=true;
                 ++height;
                 //Add a row
-                System.out.println("New row: "+ height);
                 if(!maxRows){
                     layout.setRows(++rows);
                 }
@@ -171,7 +143,11 @@ public class GameplayGrid extends JPanel{
         int rows= layout.getRows();
         for(int i=0;i<rows;i++){
             for(int j=0;j<columns;j++){
-                add(tiles.get(width*(y+i)+(x+j)));
+                JPanel panel=tiles.get(width*(y+i)+(x+j));
+                if(panel.getComponentCount()==0){
+                    panel.add(new EmptyTile());
+                }
+                add(panel);
             }
         }
     }
@@ -262,15 +238,10 @@ public class GameplayGrid extends JPanel{
     }
     //Only clears missing tiles in the visible area
     public void removeMissing(){
-        GridLayout layout = (GridLayout) getLayout();
-        int columns= layout.getColumns();
-        int rows= layout.getRows();
-        for(int i=0;i<rows;i++){
-            for(int j=0;j<columns;j++){
-                JPanel panel = getTile(cornerX+i,cornerY+j);
-                if (panel!=null && panel.getComponentCount() == 0) {
-                    panel.add(new EmptyTile());
-                }
+        for (Component component : getComponents()) {
+            JPanel panel = (JPanel) component;
+            if(panel.getComponentCount()==0){
+                panel.add(new EmptyTile());
             }
         }
     }

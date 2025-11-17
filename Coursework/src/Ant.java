@@ -11,9 +11,9 @@ public class Ant extends JButton {
     private int y;
     private final GameMenu menu;
     private final GameplayGrid grid;
-    private Boolean playing=false;
-    private Boolean hasFood=false;
-    private Boolean leaveTrail=false;
+    protected Boolean playing=false;
+    protected Boolean hasFood=false;
+    protected Boolean leaveTrail=false;
     private int directionMoved=-1;
     private int previousDirection=-1;
     public Ant(GameMenu menu, int x, int y){
@@ -24,14 +24,7 @@ public class Ant extends JButton {
         setIcon(icon);
         setBorder(new EmptyBorder(0, 0, 0, 0));
         //When ant is clicked
-        addActionListener(e -> {
-            menu.changeAnt();
-            setMainAnt();
-            playing=true;
-           // Give focus back to the gameMenu after being clicked
-            menu.transferFocus();
 
-        });
     }
     //0=up, 1=right, 2=down, 3=left
     public void move(int direction){
@@ -75,11 +68,14 @@ public class Ant extends JButton {
                 return;
             }
         }
+
         if(x+dx>=0 && y+dy>=0){
+            //If it is first time moving, set both directions to be the same.
             if(directionMoved==-1){
                 directionMoved=direction;
                 previousDirection=direction;
             }
+            //Otherwise previousDirection is the direction from the last method call, direction is the value called with currently
             previousDirection=directionMoved;
             directionMoved=direction;
             if(leaveTrail){
@@ -87,12 +83,11 @@ public class Ant extends JButton {
                     menu.setTile(x,y,new Pheromone(previousDirection+2,directionMoved));
 
                 }catch(Error e){
-                    return;
+                    menu.setTile(x,y,new EmptyTile());
                 }
             }
             else{
                 menu.setTile(x,y,new EmptyTile());
-
             }
             x=x+dx;
             y=y+dy;
@@ -157,6 +152,9 @@ public class Ant extends JButton {
         adjacentTiles.add(grid.getTile(x,y+1));
         adjacentTiles.add(grid.getTile(x-1,y));
         int i=0;
+        int direction = 0;
+        //Tracks if the ant can see a pheromone
+        boolean followTrail=false;
         while(!moved && i<4){
             JPanel adjacentTile=adjacentTiles.get(i);
             if(adjacentTile!= null) {
@@ -166,17 +164,31 @@ public class Ant extends JButton {
                 }//Missing tile needs to be replaced
                else{
                     adjacentTile.add(new EmptyTile());
-                }
-                if (tile instanceof Food) {
+               }
+                if (tile instanceof Food && !hasFood) {
                     moved = true;
                     move(i);
+                    return;
+                }
+                //Will not move in the opposite direction as previous time to avoid getting stuck in a loop
+                else if(tile instanceof Pheromone && i!=(previousDirection+2)%4){
+                    followTrail=true;
+                    direction=i;
                 }
             }
             i++;
         }
         if(!moved){
-            int direction = getDirection();
-            move(direction);
+            if(followTrail){
+                leaveTrail=true;
+                move(direction);
+                leaveTrail=false;
+            }
+            else{
+                direction=getDirection();
+                move(direction);
+            }
+
         }
     }
 
@@ -195,4 +207,5 @@ public class Ant extends JButton {
             //If ant is in the bottom right corner tile, move up
         return direction;
     }
+
 }

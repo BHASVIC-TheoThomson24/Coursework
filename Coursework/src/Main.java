@@ -14,16 +14,10 @@ public class Main {
                 lastTime=time;
                 GameMenu menu = (GameMenu) game.getFrames().get(2);
                 GameplayGrid grid = menu.getGrid();
-                int maxSize=0;
                     if(!game.isPaused() ){
                         try{
                             menu.tick();
-                            if(grid.tileSize()<maxSize){
-                                throw new Error();
-                            }
-                            else{
-                                maxSize=grid.tileSize();
-                            }
+                            grid.removeMissing();
                         }catch (ConcurrentModificationException ignored){}
                     }
 
