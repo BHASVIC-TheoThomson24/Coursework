@@ -9,13 +9,11 @@ public class Ant extends JButton {
     private static final ImageIcon icon = new ImageIcon("./Ant.png");
     private int x;
     private int y;
-    private final GameMenu menu;
-    private final GameplayGrid grid;
-    protected Boolean playing=false;
+    protected final GameMenu menu;
+    protected final GameplayGrid grid;
     protected Boolean hasFood=false;
     protected Boolean leaveTrail=false;
-    private int directionMoved=-1;
-    private int previousDirection=-1;
+    protected int previousDirection=-1;
     public Ant(GameMenu menu, int x, int y){
         this.x=x;
         this.y=y;
@@ -23,8 +21,6 @@ public class Ant extends JButton {
         this.grid=menu.getGrid();
         setIcon(icon);
         setBorder(new EmptyBorder(0, 0, 0, 0));
-        //When ant is clicked
-
     }
     //0=up, 1=right, 2=down, 3=left
     public void move(int direction){
@@ -62,7 +58,7 @@ public class Ant extends JButton {
         if(tile instanceof Food){
             if(!hasFood){
                 hasFood=true;
-                menu.addFood();
+                collectFood();
             }
             else{
                 return;
@@ -71,16 +67,13 @@ public class Ant extends JButton {
 
         if(x+dx>=0 && y+dy>=0){
             //If it is first time moving, set both directions to be the same.
-            if(directionMoved==-1){
-                directionMoved=direction;
+            if(previousDirection==-1){
                 previousDirection=direction;
             }
-            //Otherwise previousDirection is the direction from the last method call, direction is the value called with currently
-            previousDirection=directionMoved;
-            directionMoved=direction;
+
             if(leaveTrail){
                 try{
-                    menu.setTile(x,y,new Pheromone(previousDirection+2,directionMoved));
+                    menu.setTile(x,y,new Pheromone(previousDirection+2,direction));
 
                 }catch(Error e){
                     menu.setTile(x,y,new EmptyTile());
@@ -98,13 +91,9 @@ public class Ant extends JButton {
 
 
         }
+        previousDirection=direction;
     }
-    public Boolean getPlaying(){
-        return playing;
-    }
-    public void setPlaying(Boolean playing){
-        this.playing = playing;
-    }
+
     //Only used by the ant which the camera is following
     public void moveCamera(){
         if(x<grid.getCornerX()){
@@ -133,8 +122,6 @@ public class Ant extends JButton {
         return hasFood;
     }
     public void eat(){
-        hasFood=false;
-        menu.decreaseFood();
     }
     public void toggleTrail(){
         leaveTrail=!leaveTrail;
@@ -155,7 +142,7 @@ public class Ant extends JButton {
         int direction = 0;
         //Tracks if the ant can see a pheromone
         boolean followTrail=false;
-        while(!moved && i<4){
+        while(i<4){
             JPanel adjacentTile=adjacentTiles.get(i);
             if(adjacentTile!= null) {
                 Component tile=null;
@@ -166,7 +153,6 @@ public class Ant extends JButton {
                     adjacentTile.add(new EmptyTile());
                }
                 if (tile instanceof Food && !hasFood) {
-                    moved = true;
                     move(i);
                     return;
                 }
@@ -178,18 +164,15 @@ public class Ant extends JButton {
             }
             i++;
         }
-        if(!moved){
-            if(followTrail){
-                leaveTrail=true;
-                move(direction);
-                leaveTrail=false;
-            }
-            else{
-                direction=getDirection();
-                move(direction);
-            }
-
+        if (followTrail) {
+            leaveTrail = true;
+            move(direction);
+            leaveTrail = false;
+        } else {
+            direction = getDirection();
+            move(direction);
         }
+
     }
 
     private int getDirection() {
@@ -206,6 +189,9 @@ public class Ant extends JButton {
             }
             //If ant is in the bottom right corner tile, move up
         return direction;
+    }
+    public void collectFood(){
+
     }
 
 }

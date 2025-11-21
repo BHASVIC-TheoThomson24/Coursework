@@ -14,7 +14,8 @@ public class GameMenu extends JFrame {
     private JPanel gamePlay;
     private JTextArea stats;
     private final GameplayGrid grid= new GameplayGrid(this);
-    private int food = 0;
+    private int food = 20;
+    private int enemyFood=0;
     private Boolean controlDown = false;
     private JPanel statsPanel;
     //Make camera follow mainAnt
@@ -76,7 +77,7 @@ public class GameMenu extends JFrame {
                     }
                     if(direction!=-1) {
                         for (Ant ant : ants) {
-                            if (ant.getPlaying()) {
+                            if (ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying()) {
                                 ant.move(direction);
                             }
                         }
@@ -89,16 +90,19 @@ public class GameMenu extends JFrame {
             }
         });
 
-        Ant ant1=new Ant(this, 0 ,5);
-        Ant ant2=new Ant(this, 1 ,5);
+        PlayerAnt ant1=new PlayerAnt(this, 0 ,5);
+        PlayerAnt ant2=new PlayerAnt(this, 1 ,5);
+        Enemy enemy=new Enemy(this,5,6);
         ants.add(ant1);
         ants.add(ant2);
+        ants.add(enemy);
         setTile(0,5,ant1);
         setTile(1,5,ant2);
         setTile(2,2,new Food());
         setTile(1,4,new Pheromone(0,2));
         setTile(1,3,new Pheromone(0,2));
         setTile(1,2,new Pheromone(2,1));
+        setTile(5,6,enemy);
     }
     public void setTile(int x, int y, JComponent tile){
         grid.setTile(x,y,tile);
@@ -106,11 +110,11 @@ public class GameMenu extends JFrame {
     public void changeAnt(){
         if(mainAnt!=null){
             mainAnt.setTrail(false);
-
         }
         if(!controlDown) {
-            for (Ant ant : ants) {
-                ant.setPlaying(false);
+            for (Ant ant : ants ) {
+                if(ant instanceof PlayerAnt)
+                    ((PlayerAnt) ant).setPlaying(false);
             }
 
         }
@@ -126,10 +130,14 @@ public class GameMenu extends JFrame {
         food++;
         updateStats();
     }
+    public void addEnemyFood(){
+        enemyFood++;
+        updateStats();
+    }
 
 
     public void updateStats(){
-        stats.setText("Food: "+food);
+        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood);
     }
     public GameplayGrid getGrid(){
         return grid;
@@ -150,9 +158,12 @@ public class GameMenu extends JFrame {
     public void tick(){
         grid.removeMissing();
         grid.addRandomFood();
+        if(food>=25){
+            grid.addRandomAnts();
+        }
         //Average of 5 seconds to pick up food per ant
         for(Ant ant : ants){
-            if(Math.random()<0.05 && !ant.getPlaying()){
+            if(Math.random()<0.05 && !(ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying())){
                 ant.tick();
             }
             //Chance for ant to eat food if it is carrying some.
@@ -166,11 +177,23 @@ public class GameMenu extends JFrame {
                 }
             }
         }
+
         updateStats();
     }
     public void decreaseFood(){
         if(food>0) {
             food--;
         }
+    }
+    public void decreaseFood(int amount){
+        if(food>=amount){
+            food-=amount;
+        }
+    }
+    public void decreaseEnemyFood(){
+        enemyFood--;
+    }
+    public int getFood(){
+        return food;
     }
 }

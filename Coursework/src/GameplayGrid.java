@@ -72,8 +72,12 @@ public class GameplayGrid extends JPanel{
                         random = new EmptyTile();
                     } else if (value <= 94) {
                         random = new Food();
-                    } else {
-                        random = new Ant(menu, x, i - 1);
+                    } else if(value <=96){
+                        random = new Enemy(menu, x, i - 1);
+                        menu.addAnt((Ant) random);
+                    }
+                    else{
+                        random=new PlayerAnt(menu,x,i-1);
                         menu.addAnt((Ant) random);
                     }
                     p.add(random);
@@ -107,8 +111,12 @@ public class GameplayGrid extends JPanel{
                     else if(value<=94){
                         random=new Food();
                     }
+                    else if(value<=96){
+                        random=new Enemy(menu,i-1,y);
+                        menu.addAnt((Ant) random);
+                    }
                     else{
-                        random=new Ant(menu,i-1,y);
+                        random=new PlayerAnt(menu,i-1,y);
                         menu.addAnt((Ant) random);
                     }
                     p.add(random);
@@ -214,6 +222,44 @@ public class GameplayGrid extends JPanel{
 
         }
 
+    }
+    public void addRandomAnts(){
+        Random rand = new Random();
+        //For every 25 food, it will attempt to spawn a new set of ants
+        float floatNumAnts= (float) menu.getFood()/25;
+        int numAnts= (int) (floatNumAnts);
+        if(floatNumAnts-numAnts > Math.random()){
+            numAnts++;
+        }
+
+
+        for(int i=0;i< numAnts;i++) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            for(int j=0;j<10;j++){
+                int dx= rand.nextInt(7)-3;
+                int dy= rand.nextInt(7)-3;
+                JPanel panel = getTile(x+dx, y+dy);
+                if(panel!=null){
+                    Component tile=null;
+                    if(panel.getComponentCount()>0){
+                        tile = panel.getComponent(0);
+                    }
+                    else{
+                        panel.add(new EmptyTile());
+                    }
+                    if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
+                        System.out.println((x+dx) + "\n" + (y+dy));
+                        PlayerAnt ant=new PlayerAnt(menu,x+dx,y+dy);
+                        setTile(x+dx, y+dy, ant);
+                        menu.decreaseFood(5);
+                        menu.addAnt(ant) ;
+                    }
+                }
+
+            }
+
+        }
     }
     public int maxX(){
         return width-1;
