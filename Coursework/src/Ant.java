@@ -7,18 +7,21 @@ import java.util.Random;
 
 public class Ant extends JButton {
     private static final ImageIcon icon = new ImageIcon("./Ant.png");
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
     protected final GameMenu menu;
     protected final GameplayGrid grid;
     protected Boolean hasFood=false;
     protected Boolean leaveTrail=false;
     protected int previousDirection=-1;
-    public Ant(GameMenu menu, int x, int y){
+    protected int type;
+    //0=Food gatherer, 1= fighter
+    public Ant(GameMenu menu, int x, int y, int type){
         this.x=x;
         this.y=y;
         this.menu=menu;
         this.grid=menu.getGrid();
+        this.type=type;
         setIcon(icon);
         setBorder(new EmptyBorder(0, 0, 0, 0));
     }
@@ -51,9 +54,11 @@ public class Ant extends JButton {
             }
         }
 
-        //Cannot move to a space occupied by another ant
+        //Cannot move to a space occupied by another ant unless it is a fighter, and can remove enemies
         if(tile instanceof Ant){
-            return;
+            if(!fight((Ant) tile)){
+                return;
+            }
         }
         if(tile instanceof Food){
             if(!hasFood){
@@ -130,47 +135,59 @@ public class Ant extends JButton {
         leaveTrail=b;
     }
     public void tick(){
-        //Ant accesses 4 adjacent tiles
-        boolean moved = false;
-        ArrayList<JPanel> adjacentTiles = new ArrayList<>();
-        //Order matches direction e.g. tile with index 0 has direction 0 = up
-        adjacentTiles.add(grid.getTile(x,y-1));
-        adjacentTiles.add(grid.getTile(x+1,y));
-        adjacentTiles.add(grid.getTile(x,y+1));
-        adjacentTiles.add(grid.getTile(x-1,y));
-        int i=0;
-        int direction = 0;
-        //Tracks if the ant can see a pheromone
-        boolean followTrail=false;
-        while(i<4){
-            JPanel adjacentTile=adjacentTiles.get(i);
-            if(adjacentTile!= null) {
-                Component tile=null;
-                if(adjacentTile.getComponentCount()>0){
-                    tile = adjacentTile.getComponent(0);
-                }//Missing tile needs to be replaced
-               else{
-                    adjacentTile.add(new EmptyTile());
-               }
-                if (tile instanceof Food && !hasFood) {
-                    move(i);
-                    return;
-                }
-                //Will not move in the opposite direction as previous time to avoid getting stuck in a loop
-                else if(tile instanceof Pheromone && i!=(previousDirection+2)%4){
-                    followTrail=true;
-                    direction=i;
+        //Gatherers have shorter average cooldown between picking up food, of 20 ticks= 2 seconds, compared to 5 seconds for fighter
+        if(type==0 || (type==1 && Math.random()<0.4)){
+            if(hasFood){
+                hasFood=false;
+                //50% chance for food to be deleted when it stops carrying, so that the player can increase food without new ants.
+                if(Math.random()<0.5){
+                    menu.decreaseFood();
                 }
             }
-            i++;
         }
-        if (followTrail) {
-            leaveTrail = true;
-            move(direction);
-            leaveTrail = false;
-        } else {
-            direction = getDirection();
-            move(direction);
+        if(!(this instanceof PlayerAnt && ((PlayerAnt) this).getPlaying() )){
+            //Ant accesses 4 adjacent tiles
+            ArrayList<JPanel> adjacentTiles = new ArrayList<>();
+            //Order matches direction e.g. tile with index 0 has direction 0 = up
+            adjacentTiles.add(grid.getTile(x,y-1));
+            adjacentTiles.add(grid.getTile(x+1,y));
+            adjacentTiles.add(grid.getTile(x,y+1));
+            adjacentTiles.add(grid.getTile(x-1,y));
+            int i=0;
+            int direction = 0;
+            //Tracks if the ant can see a pheromone
+            boolean followTrail=false;
+            while(i<4){
+                JPanel adjacentTile=adjacentTiles.get(i);
+                if(adjacentTile!= null) {
+                    Component tile=null;
+                    if(adjacentTile.getComponentCount()>0){
+                        tile = adjacentTile.getComponent(0);
+                    }//Missing tile needs to be replaced
+                    else{
+                        adjacentTile.add(new EmptyTile());
+                    }
+                    if (tile instanceof Food && !hasFood) {
+                        move(i);
+                        return;
+                    }
+                    //Will not move in the opposite direction as previous time to avoid getting stuck in a loop
+                    else if(tile instanceof Pheromone && i!=(previousDirection+2)%4){
+                        followTrail=true;
+                        direction=i;
+                    }
+                }
+                i++;
+            }
+            if (followTrail) {
+                leaveTrail = true;
+                move(direction);
+                leaveTrail = false;
+            } else {
+                direction = getDirection();
+                move(direction);
+            }
+
         }
 
     }
@@ -193,5 +210,11 @@ public class Ant extends JButton {
     public void collectFood(){
 
     }
-
+    //Override in each subclass, returns true if fight took place, false otherwise
+    public boolean fight(Ant opponent){
+        return false;
+    }
+    public int getType(){
+        return type;
+    }
 }

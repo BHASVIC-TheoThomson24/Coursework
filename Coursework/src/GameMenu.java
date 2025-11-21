@@ -11,6 +11,7 @@ public class GameMenu extends JFrame {
     private JTextArea pauseText;
     private final ArrayList<Ant> ants = new ArrayList<>();
     private final ArrayList<Ant> newAnts= new ArrayList<>();
+    private final ArrayList<Ant> removeAnts= new ArrayList<>();
     private JPanel gamePlay;
     private JTextArea stats;
     private final GameplayGrid grid= new GameplayGrid(this);
@@ -40,7 +41,7 @@ public class GameMenu extends JFrame {
         pauseMenu.setBackground(new Color(150,75,0));
         gamePanel.setBackground(new Color(150,75,0));
         stats.setBackground(new Color(150,75,0));
-        stats.setText("Food: 0");
+        updateStats();
         gamePanel.setFocusable(true);
         gamePanel.setLayout(new FlowLayout());
         gamePanel.add(pauseMenu);
@@ -90,9 +91,9 @@ public class GameMenu extends JFrame {
             }
         });
 
-        PlayerAnt ant1=new PlayerAnt(this, 0 ,5);
-        PlayerAnt ant2=new PlayerAnt(this, 1 ,5);
-        Enemy enemy=new Enemy(this,5,6);
+        PlayerAnt ant1=new PlayerAnt(this, 0 ,5,0);
+        PlayerAnt ant2=new PlayerAnt(this, 1 ,5,0);
+        Enemy enemy=new Enemy(this,5,6,0);
         ants.add(ant1);
         ants.add(ant2);
         ants.add(enemy);
@@ -137,7 +138,16 @@ public class GameMenu extends JFrame {
 
 
     public void updateStats(){
-        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood);
+        String type = "";
+        if(mainAnt!=null){
+            type = switch (mainAnt.getType()) {
+                case 0 -> "Gatherer";
+                case 1 -> "Fighter";
+                default -> type;
+            };
+        }
+
+        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type); 
     }
     public GameplayGrid getGrid(){
         return grid;
@@ -150,6 +160,8 @@ public class GameMenu extends JFrame {
     public void updateAnts(){
         ants.addAll(newAnts);
         newAnts.clear();
+        ants.removeAll(removeAnts);
+        removeAnts.clear();
     }
     public void setMainAnt(Ant ant){
         mainAnt = ant;
@@ -163,19 +175,10 @@ public class GameMenu extends JFrame {
         }
         //Average of 5 seconds to pick up food per ant
         for(Ant ant : ants){
-            if(Math.random()<0.05 && !(ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying())){
+            if(Math.random()<0.05){
                 ant.tick();
             }
-            //Chance for ant to eat food if it is carrying some.
-            if(Math.random()<0.02){
-                if(ant.getFood()){
-                    ant.setFood(false);
-                    //50% chance for food to be deleted when it stops carrying, so that the player can increase food without new ants.
-                    if(Math.random()<0.5){
-                        decreaseFood();
-                    }
-                }
-            }
+
         }
 
         updateStats();
@@ -195,5 +198,8 @@ public class GameMenu extends JFrame {
     }
     public int getFood(){
         return food;
+    }
+    public void removeAnt(Ant ant){
+        removeAnts.add(ant);
     }
 }

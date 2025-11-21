@@ -73,11 +73,11 @@ public class GameplayGrid extends JPanel{
                     } else if (value <= 94) {
                         random = new Food();
                     } else if(value <=96){
-                        random = new Enemy(menu, x, i - 1);
+                        random = new Enemy(menu, x, i - 1, rand.nextInt(2));
                         menu.addAnt((Ant) random);
                     }
                     else{
-                        random=new PlayerAnt(menu,x,i-1);
+                        random=new PlayerAnt(menu,x,i-1, rand.nextInt(2));
                         menu.addAnt((Ant) random);
                     }
                     p.add(random);
@@ -112,11 +112,11 @@ public class GameplayGrid extends JPanel{
                         random=new Food();
                     }
                     else if(value<=96){
-                        random=new Enemy(menu,i-1,y);
+                        random=new Enemy(menu,i-1,y,rand.nextInt(3));
                         menu.addAnt((Ant) random);
                     }
                     else{
-                        random=new PlayerAnt(menu,i-1,y);
+                        random=new PlayerAnt(menu,i-1,y,rand.nextInt(2));
                         menu.addAnt((Ant) random);
                     }
                     p.add(random);
@@ -143,6 +143,9 @@ public class GameplayGrid extends JPanel{
     }
     //Sets top left corner of grid to co-ordinates, without changing its size
     public void setCorner(int x, int y){
+        if(x<0 || y<0){
+            throw new IllegalArgumentException("Invalid position, " + "x: " + x + " y: " + y);
+        }
         removeAll();
         cornerX=x;
         cornerY=y;
@@ -237,28 +240,27 @@ public class GameplayGrid extends JPanel{
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             for(int j=0;j<10;j++){
-                int dx= rand.nextInt(7)-3;
-                int dy= rand.nextInt(7)-3;
-                JPanel panel = getTile(x+dx, y+dy);
-                if(panel!=null){
-                    Component tile=null;
-                    if(panel.getComponentCount()>0){
-                        tile = panel.getComponent(0);
-                    }
-                    else{
-                        panel.add(new EmptyTile());
-                    }
-                    if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food)) {
-                        System.out.println((x+dx) + "\n" + (y+dy));
-                        PlayerAnt ant=new PlayerAnt(menu,x+dx,y+dy);
-                        setTile(x+dx, y+dy, ant);
-                        menu.decreaseFood(5);
-                        menu.addAnt(ant) ;
+                if(menu.getFood()>25){
+                    int dx= rand.nextInt(7)-3;
+                    int dy= rand.nextInt(7)-3;
+                    JPanel panel = getTile(x+dx, y+dy);
+                    if(panel!=null){
+                        Component tile=null;
+                        if(panel.getComponentCount()>0){
+                            tile = panel.getComponent(0);
+                        }
+                        else{
+                            panel.add(new EmptyTile());
+                        }
+                        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food) && (x+dx>=0) && (y+dy>=0)) {
+                            PlayerAnt ant=new PlayerAnt(menu,x+dx,y+dy,rand.nextInt(2));
+                            setTile(x+dx, y+dy, ant);
+                            menu.decreaseFood(5);
+                            menu.addAnt(ant) ;
+                        }
                     }
                 }
-
             }
-
         }
     }
     public int maxX(){
@@ -286,7 +288,7 @@ public class GameplayGrid extends JPanel{
     public void removeMissing(){
         for (Component component : getComponents()) {
             JPanel panel = (JPanel) component;
-            if(panel.getComponentCount()==0){
+            if(panel!=null && panel.getComponentCount()==0){
                 panel.add(new EmptyTile());
             }
         }
