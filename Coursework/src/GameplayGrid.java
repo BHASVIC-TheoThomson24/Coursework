@@ -38,10 +38,6 @@ public class GameplayGrid extends JPanel{
         GridLayout layout = (GridLayout) getLayout();
         int columns= layout.getColumns();
         int rows= layout.getRows();
-        if (x < 0 || y < 0) {
-            System.out.println("Invalid movement");
-        }
-        else {
             //If they move past right edge of grid, add a new column
             boolean maxColumns = x >= 20;
             boolean maxRows = y >= 20;
@@ -137,7 +133,6 @@ public class GameplayGrid extends JPanel{
                 tiles.get(index).add(tile,BorderLayout.CENTER);
             }
 
-        }
         revalidate();
         repaint();
     }
@@ -226,37 +221,56 @@ public class GameplayGrid extends JPanel{
         }
 
     }
-    public void addRandomAnts(){
+    public void addRandomAnts() {
         Random rand = new Random();
         //For every 25 food, it will attempt to spawn a new set of ants
-        float floatNumAnts= (float) menu.getFood()/25;
-        int numAnts= (int) (floatNumAnts);
-        if(floatNumAnts-numAnts > Math.random()){
+        float floatNumAnts = (float) menu.getFood() / 25;
+        int numAnts = (int) (floatNumAnts);
+        if (floatNumAnts - numAnts > Math.random()) {
             numAnts++;
         }
 
 
-        for(int i=0;i< numAnts;i++) {
+        for (int i = 0; i < numAnts; i++) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            for(int j=0;j<10;j++){
-                if(menu.getFood()>25){
-                    int dx= rand.nextInt(7)-3;
-                    int dy= rand.nextInt(7)-3;
-                    JPanel panel = getTile(x+dx, y+dy);
-                    if(panel!=null){
-                        Component tile=null;
-                        if(panel.getComponentCount()>0){
+            for (int j = 0; j < 10; j++) {
+                //Spawns ants when your food is greater than the population
+                if (menu.getFood() > menu.getPopulation()) {
+                    int dx = rand.nextInt(7) - 3;
+                    int dy = rand.nextInt(7) - 3;
+                    JPanel panel = getTile(x + dx, y + dy);
+                    if (panel != null) {
+                        Component tile = null;
+                        if (panel.getComponentCount() > 0) {
                             tile = panel.getComponent(0);
-                        }
-                        else{
+                        } else {
                             panel.add(new EmptyTile());
                         }
-                        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food) && (x+dx>=0) && (y+dy>=0)) {
-                            PlayerAnt ant=new PlayerAnt(menu,x+dx,y+dy,rand.nextInt(2));
-                            setTile(x+dx, y+dy, ant);
+                        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food) && (x + dx >= 0) && (y + dy >= 0)) {
+                            PlayerAnt ant = new PlayerAnt(menu, x + dx, y + dy, rand.nextInt(2));
+                            setTile(x + dx, y + dy, ant);
                             menu.decreaseFood(5);
-                            menu.addAnt(ant) ;
+                            menu.addAnt(ant);
+                        }
+                    }
+                }
+                if (menu.getEnemyFood() > menu.getEnemyPopulation()) {
+                    int dx = rand.nextInt(7) - 3;
+                    int dy = rand.nextInt(7) - 3;
+                    JPanel panel = getTile(x + dx, y + dy);
+                    if (panel != null) {
+                        Component tile = null;
+                        if (panel.getComponentCount() > 0) {
+                            tile = panel.getComponent(0);
+                        } else {
+                            panel.add(new EmptyTile());
+                        }
+                        if (!(tile instanceof Ant || tile instanceof Pheromone || tile instanceof Food) && (x + dx >= 0) && (y + dy >= 0)) {
+                            Enemy ant = new Enemy(menu, x + dx, y + dy, rand.nextInt(2));
+                            setTile(x + dx, y + dy, ant);
+                            menu.decreaseEnemyFood(5);
+                            menu.addAnt(ant);
                         }
                     }
                 }

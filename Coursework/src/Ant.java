@@ -90,9 +90,9 @@ public class Ant extends JButton {
             x=x+dx;
             y=y+dy;
             menu.setTile(x,y,this);
-            if(Math.random()<0.01){
-                eat();
-            }
+          if(Math.random()<0.01){
+               eat();
+          }
 
 
         }
@@ -120,12 +120,6 @@ public class Ant extends JButton {
     public void setMainAnt(){
         menu.setMainAnt(this);
     }
-    public void setFood(Boolean b){
-        hasFood=b;
-    }
-    public Boolean getFood(){
-        return hasFood;
-    }
     public void eat(){
     }
     public void toggleTrail(){
@@ -135,13 +129,19 @@ public class Ant extends JButton {
         leaveTrail=b;
     }
     public void tick(){
+        //Ants are ticked on average once every 2 seconds, and have a 1/500 chance to die each tick, giving an average lifetime of 1000 seconds = 16 minutes, 40 seconds
+        if(Math.random()<0.002){
+            menu.removeAnt(this);
+            grid.setTile(x,y,new EmptyTile());
+            return;
+        }
         //Gatherers have shorter average cooldown between picking up food, of 20 ticks= 2 seconds, compared to 5 seconds for fighter
         if(type==0 || (type==1 && Math.random()<0.4)){
             if(hasFood){
                 hasFood=false;
-                //50% chance for food to be deleted when it stops carrying, so that the player can increase food without new ants.
-                if(Math.random()<0.5){
-                    menu.decreaseFood();
+                //20% chance for food to be deleted when it stops carrying, so that the player can increase food without new ants.
+                if(Math.random()<0.2){
+                    eat();
                 }
             }
         }

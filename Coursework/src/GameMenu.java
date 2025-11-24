@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
 public class GameMenu extends JFrame {
     private JPanel gamePanel;
@@ -21,6 +22,8 @@ public class GameMenu extends JFrame {
     private JPanel statsPanel;
     //Make camera follow mainAnt
     private Ant mainAnt;
+    private int population;
+    private int enemyPopulation;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -77,11 +80,16 @@ public class GameMenu extends JFrame {
                         default:
                     }
                     if(direction!=-1) {
-                        for (Ant ant : ants) {
-                            if (ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying()) {
-                                ant.move(direction);
+                        try{
+                            for (Ant ant : ants) {
+                                if (ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying()) {
+                                    ant.move(direction);
+                                }
                             }
+                        }catch(ConcurrentModificationException ignored){
+
                         }
+
                         if(mainAnt != null){
                             mainAnt.moveCamera();
                         }
@@ -147,7 +155,7 @@ public class GameMenu extends JFrame {
             };
         }
 
-        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type); 
+        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type +"\nPopulation: " + getPopulation() + " - " + getEnemyPopulation());
     }
     public GameplayGrid getGrid(){
         return grid;
@@ -170,8 +178,9 @@ public class GameMenu extends JFrame {
     public void tick(){
         grid.removeMissing();
         grid.addRandomFood();
-        if(food>=25){
+        if(Math.random()<0.1){
             grid.addRandomAnts();
+
         }
         //Average of 5 seconds to pick up food per ant
         for(Ant ant : ants){
@@ -182,24 +191,51 @@ public class GameMenu extends JFrame {
         }
 
         updateStats();
+        updatePopulation();
+        updateEnemyPopulation();
+        updateAnts();
     }
     public void decreaseFood(){
-        if(food>0) {
             food--;
-        }
     }
     public void decreaseFood(int amount){
-        if(food>=amount){
             food-=amount;
-        }
     }
     public void decreaseEnemyFood(){
         enemyFood--;
+    }
+    public void decreaseEnemyFood(int amount){
+        enemyFood-=amount;
     }
     public int getFood(){
         return food;
     }
     public void removeAnt(Ant ant){
         removeAnts.add(ant);
+    }
+    public int getPopulation(){
+        return population;
+    }
+    public int getEnemyPopulation(){
+        return enemyPopulation;
+    }
+    public int getEnemyFood(){
+        return enemyFood;
+    }
+    private void updatePopulation(){
+        population=0;
+        for(Ant ant: ants){
+            if(ant instanceof PlayerAnt){
+                population++;
+            }
+        }
+    }
+    private void updateEnemyPopulation(){
+        enemyPopulation=0;
+        for(Ant ant: ants){
+            if(ant instanceof Enemy){
+                enemyPopulation++;
+            }
+        }
     }
 }
