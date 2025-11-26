@@ -20,6 +20,8 @@ public class GameMenu extends JFrame {
     private int enemyFood=0;
     private Boolean controlDown = false;
     private JPanel statsPanel;
+    private JPanel victoryScreen;
+    private JTextArea victoryText;
     //Make camera follow mainAnt
     private Ant mainAnt;
     private int population;
@@ -45,6 +47,8 @@ public class GameMenu extends JFrame {
         gamePanel.setBackground(new Color(150,75,0));
         stats.setBackground(new Color(150,75,0));
         updateStats();
+        victoryScreen.setVisible(false);
+        victoryText.setEditable(false);
         gamePanel.setFocusable(true);
         gamePanel.setLayout(new FlowLayout());
         gamePanel.add(pauseMenu);
@@ -155,7 +159,8 @@ public class GameMenu extends JFrame {
             };
         }
 
-        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type +"\nPopulation: " + getPopulation() + " - " + getEnemyPopulation());
+        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type +"\nPopulation: " + getPopulation()
+                + " - " + getEnemyPopulation() + "\nTime: " + (System.nanoTime()-Main.startTime)/1000000000 + " Seconds");
     }
     public GameplayGrid getGrid(){
         return grid;
@@ -194,6 +199,8 @@ public class GameMenu extends JFrame {
         updatePopulation();
         updateEnemyPopulation();
         updateAnts();
+        checkForWin();
+        grid.removeMissing();
     }
     public void decreaseFood(){
             food--;
@@ -236,6 +243,15 @@ public class GameMenu extends JFrame {
             if(ant instanceof Enemy){
                 enemyPopulation++;
             }
+        }
+    }
+    public void checkForWin(){
+        if(population>100 && population>(enemyPopulation*5)){
+            Main.win();
+            victoryScreen.setVisible(true);
+            statsPanel.setVisible(false);
+            victoryText.setText("YOU WIN!" + "\nTime: " + (System.nanoTime()-Main.startTime)/1000000000 + " Seconds"
+            + "\nPopulation: " + population + " - " + enemyPopulation);
         }
     }
 }
