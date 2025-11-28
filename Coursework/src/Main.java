@@ -2,7 +2,6 @@ import java.util.ConcurrentModificationException;
 
 public class Main {
     public static Game game=new Game();
-    public static final long startTime=System.nanoTime();
     private static boolean won=false;
     public static void main(String[] args){
         game.start();

@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class GameMenu extends JFrame {
     private Ant mainAnt;
     private int population;
     private int enemyPopulation;
+    private int ticks=0;
     public GameMenu(Game input) {
         super();
         game = input;
@@ -102,7 +105,6 @@ public class GameMenu extends JFrame {
                 }
             }
         });
-
         PlayerAnt ant1=new PlayerAnt(this, 0 ,5,0);
         PlayerAnt ant2=new PlayerAnt(this, 1 ,5,0);
         Enemy enemy=new Enemy(this,5,6,0);
@@ -160,7 +162,7 @@ public class GameMenu extends JFrame {
         }
 
         stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type +"\nPopulation: " + getPopulation()
-                + " - " + getEnemyPopulation() + "\nTime: " + (System.nanoTime()-Main.startTime)/1000000000 + " Seconds");
+                + " - " + getEnemyPopulation() + "\nTime: " + ticks/10 + " Seconds");
     }
     public GameplayGrid getGrid(){
         return grid;
@@ -179,8 +181,9 @@ public class GameMenu extends JFrame {
     public void setMainAnt(Ant ant){
         mainAnt = ant;
     }
-    //tick every 100 ms
+    // every 100 ms
     public void tick(){
+        ticks++;
         grid.removeMissing();
         grid.addRandomFood();
         if(Math.random()<0.1){
@@ -250,7 +253,7 @@ public class GameMenu extends JFrame {
             Main.win();
             victoryScreen.setVisible(true);
             statsPanel.setVisible(false);
-            victoryText.setText("YOU WIN!" + "\nTime: " + (System.nanoTime()-Main.startTime)/1000000000 + " Seconds"
+            victoryText.setText("YOU WIN!" + "\nTime: " + ticks/10 + " Seconds"
             + "\nPopulation: " + population + " - " + enemyPopulation);
         }
     }

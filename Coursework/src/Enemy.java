@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 public class Enemy extends Ant{
-private static final ImageIcon icon=new ImageIcon("./Enemy.png");
+public static final ImageIcon icon=new ImageIcon("./Enemy.png");
     public Enemy(GameMenu menu, int x, int y, int type) {
         super(menu, x, y, type);
         setIcon(icon);

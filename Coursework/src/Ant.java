@@ -6,7 +6,7 @@ import java.util.Random;
 
 
 public class Ant extends JButton {
-    private static final ImageIcon icon = new ImageIcon("./Ant.png");
+    public static final ImageIcon icon = new ImageIcon("./Ant.png");
     protected int x;
     protected int y;
     protected final GameMenu menu;
@@ -24,6 +24,7 @@ public class Ant extends JButton {
         this.type=type;
         setIcon(icon);
         setBorder(new EmptyBorder(0, 0, 0, 0));
+        menu.addAnt(this);
     }
     //0=up, 1=right, 2=down, 3=left
     public void move(int direction){

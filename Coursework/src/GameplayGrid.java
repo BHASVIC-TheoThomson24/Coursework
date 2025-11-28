@@ -1,5 +1,8 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -69,12 +72,10 @@ public class GameplayGrid extends JPanel{
                     } else if (value <= 94) {
                         random = new Food();
                     } else if(value <=96){
-                        random = new Enemy(menu, x, i - 1, rand.nextInt(2));
-                        menu.addAnt((Ant) random);
+                        random = new Enemy(menu, x, i, rand.nextInt(2));
                     }
                     else{
-                        random=new PlayerAnt(menu,x,i-1, rand.nextInt(2));
-                        menu.addAnt((Ant) random);
+                        random=new PlayerAnt(menu,x,i, rand.nextInt(2));
                     }
                     p.add(random);
                     newTiles.set(i*width+width-1, p);
@@ -109,11 +110,9 @@ public class GameplayGrid extends JPanel{
                     }
                     else if(value<=96){
                         random=new Enemy(menu,i-1,y,rand.nextInt(3));
-                        menu.addAnt((Ant) random);
                     }
                     else{
                         random=new PlayerAnt(menu,i-1,y,rand.nextInt(2));
-                        menu.addAnt((Ant) random);
                     }
                     p.add(random);
                     tiles.add(p);
@@ -128,7 +127,9 @@ public class GameplayGrid extends JPanel{
             int index = width * y + x;
             if(index<tiles.size()){
                 //Clear tile to create space
-                tiles.get(index).removeAll();
+                try{
+                    tiles.get(index).removeAll();
+                }catch(IndexOutOfBoundsException ignored){}
                 //Add new tile
                 tiles.get(index).add(tile,BorderLayout.CENTER);
             }
@@ -141,6 +142,7 @@ public class GameplayGrid extends JPanel{
         if(x<0 || y<0){
             throw new IllegalArgumentException("Invalid position, " + "x: " + x + " y: " + y);
         }
+
         removeAll();
         cornerX=x;
         cornerY=y;
@@ -251,7 +253,6 @@ public class GameplayGrid extends JPanel{
                             PlayerAnt ant = new PlayerAnt(menu, x + dx, y + dy, rand.nextInt(2));
                             setTile(x + dx, y + dy, ant);
                             menu.decreaseFood(5);
-                            menu.addAnt(ant);
                         }
                     }
                 }
@@ -270,7 +271,6 @@ public class GameplayGrid extends JPanel{
                             Enemy ant = new Enemy(menu, x + dx, y + dy, rand.nextInt(2));
                             setTile(x + dx, y + dy, ant);
                             menu.decreaseEnemyFood(5);
-                            menu.addAnt(ant);
                         }
                     }
                 }
@@ -301,7 +301,16 @@ public class GameplayGrid extends JPanel{
     //Only clears missing tiles in the visible area
     public void removeMissing(){
         for (Component component : getComponents()) {
-            JPanel panel = (JPanel) component;
+            JPanel panel = null;
+            try{
+                panel = (JPanel) component;
+
+            }catch(ClassCastException e){
+                JButton button= (JButton) component;
+                if(button!=null && button.getComponentCount()==0){
+                    button.add(new EmptyTile());
+                }
+            }
             if(panel!=null && panel.getComponentCount()==0){
                 panel.add(new EmptyTile());
             }
