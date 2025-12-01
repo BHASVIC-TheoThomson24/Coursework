@@ -18,7 +18,7 @@ public class GameMenu extends JFrame {
     private JPanel gamePlay;
     private JTextArea stats;
     private final GameplayGrid grid= new GameplayGrid(this);
-    private int food = 20;
+    private int food = 5;
     private int enemyFood=0;
     private Boolean controlDown = false;
     private JPanel statsPanel;
@@ -108,9 +108,6 @@ public class GameMenu extends JFrame {
         PlayerAnt ant1=new PlayerAnt(this, 0 ,5,0);
         PlayerAnt ant2=new PlayerAnt(this, 1 ,5,0);
         Enemy enemy=new Enemy(this,5,6,0);
-        ants.add(ant1);
-        ants.add(ant2);
-        ants.add(enemy);
         setTile(0,5,ant1);
         setTile(1,5,ant2);
         setTile(2,2,new Food());
