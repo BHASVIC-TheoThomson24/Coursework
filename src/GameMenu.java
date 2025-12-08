@@ -1,0 +1,257 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+
+public class GameMenu extends JFrame {
+    private JPanel gamePanel;
+    private final Game game;
+    private JPanel pauseMenu;
+    private JTextArea pauseText;
+    private final ArrayList<Ant> ants = new ArrayList<>();
+    private final ArrayList<Ant> newAnts= new ArrayList<>();
+    private final ArrayList<Ant> removeAnts= new ArrayList<>();
+    private JPanel gamePlay;
+    private JTextArea stats;
+    private final GameplayGrid grid= new GameplayGrid(this);
+    private int food = 5;
+    private int enemyFood=0;
+    private Boolean controlDown = false;
+    private JPanel statsPanel;
+    private JPanel victoryScreen;
+    private JTextArea victoryText;
+    //Make camera follow mainAnt
+    private Ant mainAnt;
+    private int population;
+    private int enemyPopulation;
+    private int ticks=0;
+    public GameMenu(Game input) {
+        super();
+        game = input;
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setContentPane(gamePanel);
+        this.pack();
+
+        gamePlay.setLayout(new GridLayout(1,1));
+        gamePlay.add(grid);
+        setAlwaysOnTop(true);
+        pauseMenu.setVisible(false);
+        pauseText.setEditable(false);
+        pauseText.setFocusable(false);
+        JButton back = new JButton("Back");
+        back.addActionListener(e -> game.setScreen(0));
+        pauseMenu.setLayout(new FlowLayout());
+        pauseMenu.add(back);
+        pauseMenu.setBackground(new Color(150,75,0));
+        gamePanel.setBackground(new Color(150,75,0));
+        stats.setBackground(new Color(150,75,0));
+        updateStats();
+        victoryScreen.setVisible(false);
+        victoryText.setEditable(false);
+        gamePanel.setFocusable(true);
+        gamePanel.setLayout(new FlowLayout());
+        gamePanel.add(pauseMenu);
+
+        gamePanel.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    game.togglePaused();
+                    //If pause menu is visible it will hide, and visa versa
+                   pauseMenu.setVisible(game.isPaused());
+                   for (Component c : pauseMenu.getComponents()) {
+                       c.setVisible(game.isPaused());
+                   }
+                }
+                //Only run movement checks when the game is not paused
+                else if(!game.isPaused()){
+                    int direction=-1;
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_CONTROL: controlDown=!controlDown;
+                        break;
+                        case KeyEvent.VK_SPACE: mainAnt.toggleTrail();
+                        break;
+                        case KeyEvent.VK_W: direction=0;
+                        break;
+                        case KeyEvent.VK_D: direction=1;
+                        break;
+                        case KeyEvent.VK_S: direction=2;
+                        break;
+                        case KeyEvent.VK_A: direction=3;
+                        break;
+
+
+                        default:
+                    }
+                    if(direction!=-1) {
+                        try{
+                            for (Ant ant : ants) {
+                                if (ant instanceof PlayerAnt && ((PlayerAnt) ant).getPlaying()) {
+                                    ant.move(direction);
+                                }
+                            }
+                        }catch(ConcurrentModificationException ignored){
+
+                        }
+
+                        if(mainAnt != null){
+                            mainAnt.moveCamera();
+                        }
+                        updateAnts();
+                    }
+                }
+            }
+        });
+        PlayerAnt ant1=new PlayerAnt(this, 0 ,5,0);
+        PlayerAnt ant2=new PlayerAnt(this, 1 ,5,0);
+        Enemy enemy=new Enemy(this,5,6,0);
+        setTile(0,5,ant1);
+        setTile(1,5,ant2);
+        setTile(2,2,new Food());
+        setTile(1,4,new Pheromone(0,2));
+        setTile(1,3,new Pheromone(0,2));
+        setTile(1,2,new Pheromone(2,1));
+        setTile(5,6,enemy);
+    }
+    public void setTile(int x, int y, JComponent tile){
+        grid.setTile(x,y,tile);
+    }
+    public void changeAnt(){
+        if(mainAnt!=null){
+            mainAnt.setTrail(false);
+        }
+        if(!controlDown) {
+            for (Ant ant : ants ) {
+                if(ant instanceof PlayerAnt)
+                    ((PlayerAnt) ant).setPlaying(false);
+            }
+
+        }
+    }
+    public JPanel getTile(int x, int y){
+        try {
+            return grid.getTile(x,y);
+        }catch(ArrayIndexOutOfBoundsException e){
+            return null;
+        }
+    }
+    public void addFood(){
+        food++;
+        updateStats();
+    }
+    public void addEnemyFood(){
+        enemyFood++;
+        updateStats();
+    }
+
+
+    public void updateStats(){
+        String type = "";
+        if(mainAnt!=null){
+            type = switch (mainAnt.getType()) {
+                case 0 -> "Gatherer";
+                case 1 -> "Fighter";
+                default -> type;
+            };
+        }
+
+        stats.setText("Food: "+food + " \nEnemy food: "+ enemyFood + "\nSelected Ant: " +type +"\nPopulation: " + getPopulation()
+                + " - " + getEnemyPopulation() + "\nTime: " + ticks/10 + " Seconds");
+    }
+    public GameplayGrid getGrid(){
+        return grid;
+    }
+    //Ants added in 2 stages to avoid concurrency error (new ants added while looping through ant arraylist)
+    public void addAnt(Ant ant){
+        newAnts.add(ant);
+    }
+
+    public void updateAnts(){
+        ants.addAll(newAnts);
+        newAnts.clear();
+        ants.removeAll(removeAnts);
+        removeAnts.clear();
+    }
+    public void setMainAnt(Ant ant){
+        mainAnt = ant;
+    }
+    // every 100 ms
+    public void tick(){
+        ticks++;
+        grid.removeMissing();
+        grid.addRandomFood();
+        if(Math.random()<0.1){
+            grid.addRandomAnts();
+
+        }
+        //Average of 5 seconds to pick up food per ant
+        for(Ant ant : ants){
+            if(Math.random()<0.05){
+                ant.tick();
+            }
+
+        }
+
+        updateStats();
+        updatePopulation();
+        updateEnemyPopulation();
+        updateAnts();
+        checkForWin();
+        grid.removeMissing();
+    }
+    public void decreaseFood(){
+            food--;
+    }
+    public void decreaseFood(int amount){
+            food-=amount;
+    }
+    public void decreaseEnemyFood(){
+        enemyFood--;
+    }
+    public void decreaseEnemyFood(int amount){
+        enemyFood-=amount;
+    }
+    public int getFood(){
+        return food;
+    }
+    public void removeAnt(Ant ant){
+        removeAnts.add(ant);
+    }
+    public int getPopulation(){
+        return population;
+    }
+    public int getEnemyPopulation(){
+        return enemyPopulation;
+    }
+    public int getEnemyFood(){
+        return enemyFood;
+    }
+    private void updatePopulation(){
+        population=0;
+        for(Ant ant: ants){
+            if(ant instanceof PlayerAnt){
+                population++;
+            }
+        }
+    }
+    private void updateEnemyPopulation(){
+        enemyPopulation=0;
+        for(Ant ant: ants){
+            if(ant instanceof Enemy){
+                enemyPopulation++;
+            }
+        }
+    }
+    public void checkForWin(){
+        if(population>100 && population>(enemyPopulation*5)){
+            Main.win();
+            victoryScreen.setVisible(true);
+            statsPanel.setVisible(false);
+            victoryText.setText("YOU WIN!" + "\nTime: " + ticks/10 + " Seconds"
+            + "\nPopulation: " + population + " - " + enemyPopulation);
+        }
+    }
+}
